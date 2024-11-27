@@ -25,7 +25,6 @@ const CabinApproveRequest = () => {
       const bookingRequest = {
         token: token,
         user: user,
-        officeId: officeId,
       }
 
       console.log("Data", bookingRequest);
@@ -51,17 +50,7 @@ const CabinApproveRequest = () => {
     <div className="container mt-5">
       <h2>Booking Requests</h2>
       
-      <DropdownButton
-        id="dropdown-office"
-        variant="secondary"
-        title={`Office: ${officeId}`}
-        onSelect={(selectedOffice) => setOfficeId(selectedOffice)}
-      >
-        <Dropdown.Item eventKey="YIT">YIT</Dropdown.Item>
-        <Dropdown.Item eventKey="CIT">CIT</Dropdown.Item>
-        <Dropdown.Item eventKey="BTC">BTC</Dropdown.Item>
-      </DropdownButton>
-
+      
       {error && <div className="alert alert-danger mt-3">{error}</div>}
 
       {loading ? (

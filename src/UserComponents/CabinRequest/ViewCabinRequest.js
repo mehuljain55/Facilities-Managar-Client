@@ -23,7 +23,6 @@ const ViewCabinRequest = () => {
         user: user,
       }
 
-      
       console.log("Data", bookingRequest);
 
       try {

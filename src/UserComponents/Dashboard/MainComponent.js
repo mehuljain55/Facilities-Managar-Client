@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import YashLogo from "../Image/yash.jpg"; 
 import CabinRequest from "../CabinRequest/CabinRequest";
+import CabinApproveRequest from "../CabinRequest/CabinApproveRequest";
+import ViewCabinRequest from "../CabinRequest/ViewCabinRequest";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const MainComponent = () => {
@@ -29,9 +31,9 @@ const MainComponent = () => {
       case "cabinRequest":
         return <div><CabinRequest /></div>;
       case "viewRequest":
-        return <div><h3>View Request</h3><p>This is the View Request section.</p></div>;
+        return <div><ViewCabinRequest /></div>;
       case "approveRequest":
-        return <div><h3>Approve Request</h3><p>This is the Approve Request section (Manager only).</p></div>;
+        return <div><CabinApproveRequest /></div>;
       case "addCabin":
         return <div><h3>Add Cabin</h3><p>This is the Add Cabin section (Manager only).</p></div>;
       default:

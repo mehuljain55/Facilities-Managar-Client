@@ -94,7 +94,7 @@ const CabinApproveRequest = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="8" className="text-center">
+                <td colSpan="11" className="text-center">
                   No booking requests found
                 </td>
               </tr>

@@ -45,6 +45,9 @@ const Login = ({ setLoginStatus }) => {
     }
   };
   
+  const handleRegister = () => {
+    navigate("/register", { replace: true }); // Redirect to dashboard
+  }
 
 
   return (
@@ -84,7 +87,8 @@ const Login = ({ setLoginStatus }) => {
           </div>
           <button
             type="submit"
-            className="btn w-100"
+            className= "btn w-100 "
+            
             style={{
               backgroundColor: "#FFDDAD",
               color: "#333",
@@ -95,6 +99,20 @@ const Login = ({ setLoginStatus }) => {
             Login
           </button>
         </form>
+        <button
+            onClick={handleRegister}
+            className="btn w-100 mt-3"
+            style={{
+              backgroundColor: "#FFDDAD",
+              color: "#333",
+              fontWeight: "bold",
+              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
+            }}
+          >
+            Register
+          </button>
+
+        
         {error && <p className="text-danger text-center mt-3">{error}</p>}
       </div>
     </div>

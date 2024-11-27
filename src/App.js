@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import Login from "./UserComponents/Login/Login";
+import Register from "./UserComponents/Login/Register.js";
 import MainComponent from "./UserComponents/Dashboard/MainComponent";
 import API_BASE_URL from "./UserComponents/Config/Config";
 
@@ -42,6 +43,7 @@ const App = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login setLoginStatus={setLoginStatus} />} />
+      <Route path="/register" element={<Register  />} />
       <Route
         path="/dashboard"
         element={loginStatus ? <MainComponent /> : <Navigate to="/login" replace />}

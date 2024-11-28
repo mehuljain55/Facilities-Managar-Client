@@ -3,6 +3,8 @@ import YashLogo from "../Image/yash.jpg";
 import CabinRequest from "../CabinRequest/CabinRequest";
 import CabinApproveRequest from "../CabinRequest/CabinApproveRequest";
 import ViewCabinRequest from "../CabinRequest/ViewCabinRequest";
+import UserApprovalList from "../Manager/UserApprovalList";
+import AddCabin from "../Manager/AddCabin";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const MainComponent = () => {
@@ -47,10 +49,17 @@ const MainComponent = () => {
       case "addCabin":
         return (
           <div>
-            <h3>Add Cabin</h3>
-            <p>This is the Add Cabin section (Manager only).</p>
+           <AddCabin />
           </div>
         );
+
+        case "approveUserRequest":
+          return (
+            <div>
+             <UserApprovalList />
+            </div>
+          );
+
       default:
         return (
           <div>
@@ -120,6 +129,7 @@ const MainComponent = () => {
                 View Request
               </button>
             </li>
+            
           </ul>
           </>
         )}
@@ -135,7 +145,17 @@ const MainComponent = () => {
                     }`}
                     onClick={() => setActiveSection("approveRequest")}
                   >
-                    Approve Request
+                    Cabin Request Approval
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`btn btn-link text-decoration-none w-100 text-start ${
+                      activeSection === "approveUserRequest" ? "fw-bold text-primary" : "text-dark"
+                    }`}
+                    onClick={() => setActiveSection("approveUserRequest")}
+                  >
+                    User Approval
                   </button>
                 </li>
                 <li>
@@ -148,6 +168,8 @@ const MainComponent = () => {
                     Add Cabin
                   </button>
                 </li>
+             
+             
               </ul>
             </>
           )}

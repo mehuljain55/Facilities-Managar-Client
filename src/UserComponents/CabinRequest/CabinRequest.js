@@ -212,7 +212,7 @@ const CabinRequest = () => {
                 <option value="">Select a Cabin</option>
                 {cabins.map((cabin) => (
                   <option key={cabin.cabinId} value={cabin.cabinId}>
-                    {cabin.cabinName} - Capacity: {cabin.capacity}
+                    {cabin.cabinName} - Capacity: {cabin.capacity}- Status: {cabin.status}
                   </option>
                 ))}
               </select>

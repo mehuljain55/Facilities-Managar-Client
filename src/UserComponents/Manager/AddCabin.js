@@ -4,7 +4,7 @@ import API_BASE_URL from '../Config/Config';
 
 const AddCabin = () => {
   const [cabins, setCabins] = useState([]);
-  const [newCabin, setNewCabin] = useState({ cabinId: '', cabinName: '', capacity: '' });
+  const [newCabin, setNewCabin] = useState({ cabinName: '', capacity: '' });
   const [error, setError] = useState('');
 
   const handleInputChange = (e) => {
@@ -13,16 +13,17 @@ const AddCabin = () => {
       ...prevState,
       [name]: value,
     }));
+
+    if (newCabin.cabinName && newCabin.capacity) {
+      setCabins([...cabins, { ...newCabin, [name]: value }]);
+      setNewCabin({ cabinName: '', capacity: '' });
+      setError('');
+    }
   };
 
-  const handleAddRow = () => {
-    if ( !newCabin.cabinName || !newCabin.capacity) {
-      setError("All fields are required.");
-      return;
-    }
-    setCabins([...cabins, newCabin]);
-    setNewCabin({ cabinId: '', cabinName: '', capacity: '' });
-    setError('');
+  const handleRemoveRow = (index) => {
+    const updatedCabins = cabins.filter((_, i) => i !== index);
+    setCabins(updatedCabins);
   };
 
   const handleSubmit = () => {
@@ -69,16 +70,15 @@ const AddCabin = () => {
               <td>{cabin.cabinName}</td>
               <td>{cabin.capacity}</td>
               <td>
-                <button className="btn btn-danger" onClick={() => {
-                  const updatedCabins = cabins.filter((_, i) => i !== index);
-                  setCabins(updatedCabins);
-                }}>
+                <button 
+                  className="btn btn-danger" 
+                  onClick={() => handleRemoveRow(index)}
+                >
                   Remove
                 </button>
               </td>
             </tr>
           ))}
-         
           <tr>
             <td>
               <input
@@ -100,12 +100,13 @@ const AddCabin = () => {
                 placeholder="Capacity"
               />
             </td>
-             </tr>
-             <button className="btn btn-primary" onClick={handleAddRow}>Add</button>
+          </tr>
         </tbody>
       </table>
 
-      <button className="btn btn-success mt-3" onClick={handleSubmit}>Submit</button>
+      <button className="btn btn-success mt-3" onClick={handleSubmit}>
+        Submit
+      </button>
     </div>
   );
 };

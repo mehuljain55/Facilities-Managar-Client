@@ -9,6 +9,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 const MainComponent = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // State to toggle sidebar
   const user = JSON.parse(sessionStorage.getItem("user")) || {};
 
   const handleLogout = () => {
@@ -49,17 +50,15 @@ const MainComponent = () => {
       case "addCabin":
         return (
           <div>
-           <AddCabin />
+            <AddCabin />
           </div>
         );
-
-        case "approveUserRequest":
-          return (
-            <div>
-             <UserApprovalList />
-            </div>
-          );
-
+      case "approveUserRequest":
+        return (
+          <div>
+            <UserApprovalList />
+          </div>
+        );
       default:
         return (
           <div>
@@ -74,10 +73,14 @@ const MainComponent = () => {
     <div className="d-flex vh-100">
       {/* Sidebar */}
       <div
-        className="sidebar d-flex flex-column bg-light"
+        className={`sidebar d-flex flex-column bg-light ${
+          isSidebarOpen ? "sidebar-open" : "sidebar-closed"
+        }`}
         style={{
-          width: "250px",
-          boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
+          width: isSidebarOpen ? "250px" : "0",
+          transition: "width 0.3s ease",
+          overflow: "hidden",
+          position: "relative",
         }}
       >
         <div
@@ -104,36 +107,37 @@ const MainComponent = () => {
           )}
         </div>
         <div className="menu mt-3">
-        {user.role === "user" && (
+          {user.role === "user" && (
             <>
-          <h6 className="px-4 text-secondary">User</h6>
-          <ul className="list-unstyled px-3">
-            
-            <li>
-              <button
-                className={`btn btn-link text-decoration-none w-100 text-start ${
-                  activeSection === "cabinRequest" ? "fw-bold text-primary" : "text-dark"
-                }`}
-                onClick={() => setActiveSection("cabinRequest")}
-              >
-                Cabin Request
-              </button>
-            </li>
-            <li>
-              <button
-                className={`btn btn-link text-decoration-none w-100 text-start ${
-                  activeSection === "viewRequest" ? "fw-bold text-primary" : "text-dark"
-                }`}
-                onClick={() => setActiveSection("viewRequest")}
-              >
-                View Request
-              </button>
-            </li>
-            
-          </ul>
-          </>
-        )}
-          {/* Sections visible only to managers */}
+              <h6 className="px-4 text-secondary">User</h6>
+              <ul className="list-unstyled px-3">
+                <li>
+                  <button
+                    className={`btn btn-link text-decoration-none w-100 text-start ${
+                      activeSection === "cabinRequest"
+                        ? "fw-bold text-primary"
+                        : "text-dark"
+                    }`}
+                    onClick={() => setActiveSection("cabinRequest")}
+                  >
+                    Cabin Request
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`btn btn-link text-decoration-none w-100 text-start ${
+                      activeSection === "viewRequest"
+                        ? "fw-bold text-primary"
+                        : "text-dark"
+                    }`}
+                    onClick={() => setActiveSection("viewRequest")}
+                  >
+                    View Request
+                  </button>
+                </li>
+              </ul>
+            </>
+          )}
           {user.role === "manager" && (
             <>
               <h6 className="px-4 text-secondary">Manager Only</h6>
@@ -141,7 +145,9 @@ const MainComponent = () => {
                 <li>
                   <button
                     className={`btn btn-link text-decoration-none w-100 text-start ${
-                      activeSection === "approveRequest" ? "fw-bold text-primary" : "text-dark"
+                      activeSection === "approveRequest"
+                        ? "fw-bold text-primary"
+                        : "text-dark"
                     }`}
                     onClick={() => setActiveSection("approveRequest")}
                   >
@@ -151,7 +157,9 @@ const MainComponent = () => {
                 <li>
                   <button
                     className={`btn btn-link text-decoration-none w-100 text-start ${
-                      activeSection === "approveUserRequest" ? "fw-bold text-primary" : "text-dark"
+                      activeSection === "approveUserRequest"
+                        ? "fw-bold text-primary"
+                        : "text-dark"
                     }`}
                     onClick={() => setActiveSection("approveUserRequest")}
                   >
@@ -161,15 +169,15 @@ const MainComponent = () => {
                 <li>
                   <button
                     className={`btn btn-link text-decoration-none w-100 text-start ${
-                      activeSection === "addCabin" ? "fw-bold text-primary" : "text-dark"
+                      activeSection === "addCabin"
+                        ? "fw-bold text-primary"
+                        : "text-dark"
                     }`}
                     onClick={() => setActiveSection("addCabin")}
                   >
                     Add Cabin
                   </button>
                 </li>
-             
-             
               </ul>
             </>
           )}
@@ -186,7 +194,13 @@ const MainComponent = () => {
             boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <div className="container-fluid px-4">
+          <div className="container-fluid px-4 d-flex align-items-center">
+            <button
+              className="btn btn-light me-3"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            >
+              ☰
+            </button>
             <a
               href="#"
               className="navbar-brand text-white fw-bold"
@@ -194,7 +208,7 @@ const MainComponent = () => {
             >
               Dashboard
             </a>
-            <button className="btn btn-outline-light" onClick={handleLogout}>
+            <button className="btn btn-outline-light ms-auto" onClick={handleLogout}>
               Logout
             </button>
           </div>

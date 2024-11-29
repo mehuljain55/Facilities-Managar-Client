@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 import YashLogo from "../Image/yash.jpg";
+import {  Button, Dropdown } from 'react-bootstrap';
 import CabinRequest from "../CabinRequest/CabinRequest";
 import CabinApproveRequest from "../CabinRequest/CabinApproveRequest";
 import ViewCabinRequest from "../CabinRequest/ViewCabinRequest";
 import UserApprovalList from "../Manager/UserApprovalList";
 import AddCabin from "../Manager/AddCabin";
+import ViewBooking from "../Bookings/ViewBooking";
+import Dashboard from "../Manager/Dashboard";
+
+
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const MainComponent = () => {
@@ -22,10 +27,10 @@ const MainComponent = () => {
       case "dashboard":
         return (
           <div>
-            {user.name ? (
-              <p className="text-center">Welcome, {user.name}</p>
+            {user.role=="manager" ? (
+              <Dashboard activeSection={setActiveSection}/>
             ) : (
-              <p className="text-center text-danger">User information not found.</p>
+              <p className="text-center text-danger">WelcomeP{user.name}</p>
             )}
           </div>
         );
@@ -59,6 +64,12 @@ const MainComponent = () => {
             <UserApprovalList />
           </div>
         );
+     case "viewBooking":
+          return (
+            <div>
+              <ViewBooking />
+            </div>
+          );
       default:
         return (
           <div>
@@ -169,6 +180,18 @@ const MainComponent = () => {
                 <li>
                   <button
                     className={`btn btn-link text-decoration-none w-100 text-start ${
+                      activeSection === "viewBooking"
+                        ? "fw-bold text-primary"
+                        : "text-dark"
+                    }`}
+                    onClick={() => setActiveSection("viewBooking")}
+                  >
+                    View Booking
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`btn btn-link text-decoration-none w-100 text-start ${
                       activeSection === "addCabin"
                         ? "fw-bold text-primary"
                         : "text-dark"
@@ -201,13 +224,13 @@ const MainComponent = () => {
             >
               ☰
             </button>
-            <a
-              href="#"
+            <Button
+              onClick={() => setActiveSection("dashboard")}
               className="navbar-brand text-white fw-bold"
               style={{ fontSize: "18px" }}
             >
               Dashboard
-            </a>
+            </Button>
             <button className="btn btn-outline-light ms-auto" onClick={handleLogout}>
               Logout
             </button>

@@ -77,6 +77,7 @@ const UserApprovalList = () => {
 
 
   const fetchUserApprovalRequests = async () => {
+    setUserApprovalRequestList([]);
     setLoading(true);
     setError(null);
     const user = JSON.parse(sessionStorage.getItem('user'));

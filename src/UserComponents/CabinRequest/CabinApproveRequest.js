@@ -15,6 +15,7 @@ const CabinApproveRequest = () => {
 
   useEffect(() => {
     const fetchBookingRequests = async () => {
+      setBookingRequests([]);
       setLoading(true);
       setError(null);
       const user = JSON.parse(sessionStorage.getItem('user'));
@@ -108,8 +109,6 @@ const CabinApproveRequest = () => {
         setShowModal(false);
         setSelectedRequest(null);
         setSelectedCabin(null);
-
-        // Refresh the booking requests
         setBookingRequests((prev) => prev.filter((req) => req.requestId !== selectedRequest.requestId));
       } else {
         alert('Failed to approve booking');
@@ -211,7 +210,6 @@ const CabinApproveRequest = () => {
         </Table>
       )}
 
-      {/* Modal for Approval */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Approve Booking</Modal.Title>

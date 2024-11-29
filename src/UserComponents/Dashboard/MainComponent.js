@@ -5,8 +5,11 @@ import CabinRequest from "../CabinRequest/CabinRequest";
 import CabinApproveRequest from "../CabinRequest/CabinApproveRequest";
 import ViewCabinRequest from "../CabinRequest/ViewCabinRequest";
 import UserApprovalList from "../Manager/UserApprovalList";
+import Cabin from "../Manager/Cabin";
 import AddCabin from "../Manager/AddCabin";
 import ViewBooking from "../Bookings/ViewBooking";
+import ViewAllCabinRequest from "../CabinRequest/ViewAllCabinRequest";
+
 import Dashboard from "../Manager/Dashboard";
 
 
@@ -55,7 +58,7 @@ const MainComponent = () => {
       case "addCabin":
         return (
           <div>
-            <AddCabin />
+            <Cabin />
           </div>
         );
       case "approveUserRequest":
@@ -70,6 +73,13 @@ const MainComponent = () => {
               <ViewBooking />
             </div>
           );
+      case "viewAllCabinRequest":
+          return (
+           <div>
+              <ViewAllCabinRequest />
+              </div>
+            );
+            
       default:
         return (
           <div>
@@ -162,7 +172,7 @@ const MainComponent = () => {
                     }`}
                     onClick={() => setActiveSection("approveRequest")}
                   >
-                    Cabin Request Approval
+                    Cabin Approval
                   </button>
                 </li>
                 <li>
@@ -192,13 +202,27 @@ const MainComponent = () => {
                 <li>
                   <button
                     className={`btn btn-link text-decoration-none w-100 text-start ${
+                      activeSection === "viewAllCabinRequest"
+                        ? "fw-bold text-primary"
+                        : "text-dark"
+                    }`}
+                    onClick={() => setActiveSection("viewAllCabinRequest")}
+                  >
+                    All Cabin Request
+                  </button>
+                </li>
+
+
+                <li>
+                  <button
+                    className={`btn btn-link text-decoration-none w-100 text-start ${
                       activeSection === "addCabin"
                         ? "fw-bold text-primary"
                         : "text-dark"
                     }`}
                     onClick={() => setActiveSection("addCabin")}
                   >
-                    Add Cabin
+                     Cabin
                   </button>
                 </li>
               </ul>

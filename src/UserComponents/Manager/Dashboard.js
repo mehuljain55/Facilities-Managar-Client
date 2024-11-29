@@ -67,7 +67,7 @@ const Dashboard = ({ activeSection }) => {
 
         <Col md={4}>
           <Card bg="success" text="white" className="text-center">
-            <Card.Body>
+            <Card.Body  onClick={() => activeSection("viewAllCabinRequest")}>
               <Card.Title>
                 <FaCheckCircle size={30} /> Cabin Requests Approved
               </Card.Title>
@@ -78,7 +78,7 @@ const Dashboard = ({ activeSection }) => {
 
         <Col md={4}>
           <Card bg="danger" text="white" className="text-center">
-            <Card.Body>
+            <Card.Body  onClick={() => activeSection("viewAllCabinRequest")}>
               <Card.Title>
                 <FaTimesCircle size={30} /> Cabin Requests Rejected
               </Card.Title>

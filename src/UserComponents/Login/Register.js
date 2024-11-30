@@ -10,7 +10,7 @@ const Register = () => {
     name: "",
     mobileNo:"",
     password: "",
-    officeId: "CIT", // Default selected value
+    officeId: "YIT", 
   });
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -25,7 +25,14 @@ const Register = () => {
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
+  
 
+    const emailDomain = formData.emailId.split("@")[1];
+    if (emailDomain !== "yash.com") {
+      setError("Email domain must be '@yash.com'.");
+      return;
+    }
+  
     try {
       const response = await fetch(`${API_BASE_URL}/user/register`, {
         method: "POST",
@@ -34,14 +41,14 @@ const Register = () => {
         },
         body: JSON.stringify(formData),
       });
-
+  
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-
+  
       const result = await response.json();
       console.log("Registration Response:", result);
-
+  
       if (result.status === "success") {
         setSuccessMessage("Registration successful! Redirecting to login...");
         setTimeout(() => navigate("/login", { replace: true }), 2000);
@@ -53,7 +60,7 @@ const Register = () => {
       setError("An error occurred. Please try again.");
     }
   };
-
+  
   return (
     <div
       style={{ backgroundColor: "#C6E7FF", height: "100vh" }}

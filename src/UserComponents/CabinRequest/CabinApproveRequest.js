@@ -4,7 +4,6 @@ import { Table, Modal, Button, Dropdown } from 'react-bootstrap';
 import API_BASE_URL from "../Config/Config";
 
 const CabinApproveRequest = () => {
-  const [officeId, setOfficeId] = useState('YIT'); 
   const [bookingRequests, setBookingRequests] = useState([]);
   const [availableCabins, setAvailableCabins] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);
@@ -13,41 +12,44 @@ const CabinApproveRequest = () => {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    const fetchBookingRequests = async () => {
-      setBookingRequests([]);
-      setLoading(true);
-      setError(null);
-      const user = JSON.parse(sessionStorage.getItem('user'));
-      const token = sessionStorage.getItem('token');
+  const fetchBookingRequests = async () => {
+    setBookingRequests([]);
+    setLoading(true);
+    setError(null);
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const token = sessionStorage.getItem('token');
 
-      if (!user || !token) {
-        setError('User not authenticated');
-        setLoading(false);
-        return;
-      }
-
-      const bookingRequest = {
-        token: token,
-        user: user,
-      }
-
-      try {
-        const response = await axios.post(`${API_BASE_URL}/admin/booking/viewRequest`, bookingRequest);
-
-        if (response.data.status === 'success') {
-          setBookingRequests(response.data.payload);
-        } else {
-          setError('Failed to fetch booking requests');
-        }
-      } catch (err) {
-        setError('Error fetching booking requests');
-      }
+    if (!user || !token) {
+      setError('User not authenticated');
       setLoading(false);
-    };
+      return;
+    }
 
+    const bookingRequest = {
+      token: token,
+      user: user,
+    }
+
+    try {
+      const response = await axios.post(`${API_BASE_URL}/admin/booking/viewRequest`, bookingRequest);
+
+      if (response.data.status === 'success') {
+        setBookingRequests(response.data.payload);
+      } else {
+        setError('Failed to fetch booking requests');
+      }
+    } catch (err) {
+      setError('Error fetching booking requests');
+    }
+    setLoading(false);
+  };
+
+
+
+  useEffect(() => {
+  
     fetchBookingRequests();
-  }, [officeId]);
+  }, []);
 
   const handleApprove = async (request) => {
     setSelectedRequest(request);
@@ -64,14 +66,14 @@ const CabinApproveRequest = () => {
           endDate: request.endDate,
           validFrom: request.validFrom,
           validTill: request.validTill,
-          bookingValadity:request.bookingValadity,
+          bookingValadity: request.bookingValadity,
+          bookingType: "Allotment",
           officeId: request.officeId,
         },
       });
 
       if (response.data.status === 'success') {
         setAvailableCabins(response.data.payload);
-        console.log(availableCabins);
       } else {
         setError('Failed to fetch available cabins');
       }
@@ -85,7 +87,6 @@ const CabinApproveRequest = () => {
     const token = sessionStorage.getItem('token');
 
     try {
-
       const booking = {
         token,
         user: userData,
@@ -94,9 +95,6 @@ const CabinApproveRequest = () => {
           cabinId: selectedCabin
         },
       };
-
-      console.log("User");
-      console.log(booking);
 
       const response = await axios.post(`${API_BASE_URL}/admin/booking/approveBooking`, booking, {
         headers: {
@@ -115,6 +113,8 @@ const CabinApproveRequest = () => {
       }
     } catch (err) {
       alert('Error approving booking');
+    }finally{
+      fetchBookingRequests();
     }
   };
 
@@ -123,7 +123,6 @@ const CabinApproveRequest = () => {
     const token = sessionStorage.getItem('token');
 
     try {
-
       const booking = {
         token,
         user: userData,
@@ -131,9 +130,6 @@ const CabinApproveRequest = () => {
           requestId: request.requestId,
         },
       };
-
-      console.log("User");
-      console.log(booking);
 
       const response = await axios.post(`${API_BASE_URL}/admin/booking/cancelRequest`, booking, {
         headers: {
@@ -143,12 +139,26 @@ const CabinApproveRequest = () => {
       
       if (response.data.status === 'success') {
         alert('Booking cancelled successfully');
-        
       } else {
         alert('Failed to cancel booking');
       }
     } catch (err) {
-      alert('Error approving booking');
+      alert('Error cancelling booking');
+    }finally{
+      fetchBookingRequests();
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'Booked':
+        return 'red';
+      case 'Requested':
+        return 'blue';
+      case 'Available':
+        return 'green';
+      default:
+        return 'gray';
     }
   };
 
@@ -233,8 +243,13 @@ const CabinApproveRequest = () => {
             </Dropdown.Toggle>
             <Dropdown.Menu>
               {availableCabins.map((cabin) => (
-                <Dropdown.Item key={cabin.cabinId} onClick={() => setSelectedCabin(cabin.cabinId)}>
-                  {cabin.cabinName} (  {cabin.status})
+                <Dropdown.Item
+                  key={cabin.cabinId}
+                  onClick={() => cabin.status !== 'Booked' && setSelectedCabin(cabin.cabinId)}
+                  disabled={cabin.status === 'Booked'}
+                >
+                  {cabin.cabinName} ( Capacity: {cabin.capacity} ) 
+                  <span style={{ color: getStatusColor(cabin.status) }}> (Status: {cabin.msg})</span>
                 </Dropdown.Item>
               ))}
             </Dropdown.Menu>

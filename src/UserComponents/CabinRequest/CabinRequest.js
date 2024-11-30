@@ -46,6 +46,7 @@ const CabinRequest = () => {
             validFrom: bookingValidity === "single_day" ? validFrom : null,
             validTill: bookingValidity === "single_day" ? validTill : null,
             bookingValadity: bookingValidity,
+            bookingType:"Booking",
             officeId,
             purpose,
           },
@@ -95,9 +96,13 @@ const CabinRequest = () => {
         bookingValadity: bookingValidity,
         officeId,
         cabinId: selectedCabin,
+        bookingType:"Booking",
         purpose,
       },
     };
+
+    console.log("User")
+    console.log(requestData);
 
     try {
       const response = await axios.post(`${API_BASE_URL}/user/createBooking`, requestData);
@@ -109,6 +114,19 @@ const CabinRequest = () => {
     } catch (error) {
       console.error("Error creating booking:", error);
       alert("An error occurred while creating the booking.");
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Booked":
+        return "text-danger"; // Red color for Booked
+      case "Requested":
+        return "text-warning"; // Yellow for requested
+      case "Avaliable":
+        return "text-success"; // Green for available
+      default:
+        return "";
     }
   };
 
@@ -211,8 +229,15 @@ const CabinRequest = () => {
               >
                 <option value="">Select a Cabin</option>
                 {cabins.map((cabin) => (
-                  <option key={cabin.cabinId} value={cabin.cabinId}>
-                    {cabin.cabinName} - Capacity: {cabin.capacity}- Status: {cabin.status}
+                  <option
+                    key={cabin.cabinId}
+                    value={cabin.cabinId}
+                    disabled={cabin.status === "Booked"}
+                  >
+                    {cabin.cabinName} - Capacity: {cabin.capacity} 
+                    <span className={getStatusColor(cabin.status)}>
+                      {" - Status: " + cabin.msg}
+                    </span>
                   </option>
                 ))}
               </select>

@@ -6,6 +6,7 @@ import API_BASE_URL from "../Config/Config";
 const ViewCabinRequest = () => {
   const [bookingRequests, setBookingRequests] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [filterStatus, setFilterStatus] = useState('all');  
 
   useEffect(() => {
     const fetchBookingRequests = async () => {
@@ -21,7 +22,7 @@ const ViewCabinRequest = () => {
       const bookingRequest = {
         token: token,
         user: user,
-      }
+      };
 
       console.log("Data", bookingRequest);
 
@@ -42,13 +43,27 @@ const ViewCabinRequest = () => {
     fetchBookingRequests();
   }, []);
 
+  const filteredRequests = filterStatus === 'all'
+    ? bookingRequests
+    : bookingRequests.filter(request => request.status.toLowerCase() === filterStatus.toLowerCase());
+
   return (
     <div className="container mt-5">
       <h2>Booking Requests</h2>
-      
-   
 
-   
+
+      <DropdownButton
+        id="status-filter-dropdown"
+        title={`Status: ${filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1)}`}
+        className="mb-3"
+        onSelect={(status) => setFilterStatus(status)} // Update filter status when selection changes
+      >
+        <Dropdown.Item eventKey="all">All</Dropdown.Item>
+        <Dropdown.Item eventKey="approved">Approved</Dropdown.Item>
+        <Dropdown.Item eventKey="rejected">Rejected</Dropdown.Item>
+        <Dropdown.Item eventKey="hold">Hold</Dropdown.Item>
+      </DropdownButton>
+
       {loading ? (
         <div className="spinner-border text-primary mt-3" role="status">
           <span className="visually-hidden">Loading...</span>
@@ -69,8 +84,8 @@ const ViewCabinRequest = () => {
             </tr>
           </thead>
           <tbody>
-            {bookingRequests.length > 0 ? (
-              bookingRequests.map((request) => (
+            {filteredRequests.length > 0 ? (
+              filteredRequests.map((request) => (
                 <tr key={request.requestId}>
                   <td>{request.requestId}</td>
                   <td>{request.cabinId}</td>
@@ -79,14 +94,13 @@ const ViewCabinRequest = () => {
                   <td>{request.officeId}</td>
                   <td>{new Date(request.startDate).toLocaleDateString("en-GB")}</td>
                   <td>{new Date(request.endDate).toLocaleDateString("en-GB")}</td>
-
                   <td>{request.bookingValadity}</td>
                   <td>{request.status}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="8" className="text-center">
+                <td colSpan="9" className="text-center">
                   No booking requests found
                 </td>
               </tr>

@@ -100,7 +100,12 @@ const UserApprovalList = () => {
 
       if (response.data.status === 'success') {
           setUserApprovalRequestList(response.data.payload);
-      } else {
+      }else if (response.data.status === 'not_found') {
+        setError('No Request pending');
+    }
+       else {
+        console.log("user");
+        console.log(response.data);
         setError('Failed to fetch appoval requests');
       }
     } catch (err) {

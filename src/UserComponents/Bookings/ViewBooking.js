@@ -42,7 +42,7 @@ const ViewBooking = () => {
 
   return (
     <div className="container mt-5">
-      <h2>Booking Requests</h2>
+      <h2>Bookings</h2>
       
    
 
@@ -77,8 +77,9 @@ const ViewBooking = () => {
                   <td>{request.officeId}</td>
                   <td>{request.validFrom}</td>
                   <td>{request.validTill}</td>
-                  <td>{request.startDate}</td>
-                  <td>{request.endDate}</td>
+                  <td>{new Date(request.startDate).toLocaleDateString("en-GB")}</td>
+                  <td>{new Date(request.endDate).toLocaleDateString("en-GB")}</td>
+
                 </tr>
               ))
             ) : (

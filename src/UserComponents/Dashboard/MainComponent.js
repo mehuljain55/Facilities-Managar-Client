@@ -73,12 +73,29 @@ const MainComponent = () => {
               <ViewBooking />
             </div>
           );
-      case "viewAllCabinRequest":
+     
+    
+          case "viewAllCabinRequest":
+            return (
+             <div>
+              <ViewAllCabinRequest />
+                </div>
+              );
+      
+         case "viewAllCabinRequestApproved":
           return (
            <div>
-              <ViewAllCabinRequest />
+            <ViewAllCabinRequest preselectedStatus="approved" />
               </div>
             );
+            
+       case "viewAllCabinRequestRejected":
+           return (
+            <div>
+            <ViewAllCabinRequest preselectedStatus="rejected" />
+              </div>
+              );
+    
             
       default:
         return (
@@ -208,7 +225,7 @@ const MainComponent = () => {
                     }`}
                     onClick={() => setActiveSection("viewAllCabinRequest")}
                   >
-                    All Cabin Request
+                    Cabin Request View
                   </button>
                 </li>
 
@@ -222,7 +239,7 @@ const MainComponent = () => {
                     }`}
                     onClick={() => setActiveSection("addCabin")}
                   >
-                     Cabin
+                     Cabin Manager
                   </button>
                 </li>
               </ul>

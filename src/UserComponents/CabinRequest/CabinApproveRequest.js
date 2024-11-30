@@ -154,7 +154,7 @@ const CabinApproveRequest = () => {
 
   return (
     <div className="container mt-5">
-      <h2>Booking Requests</h2>
+      <h2>Cabin Approval</h2>
       
       {error && <div className="alert alert-danger mt-3">{error}</div>}
 

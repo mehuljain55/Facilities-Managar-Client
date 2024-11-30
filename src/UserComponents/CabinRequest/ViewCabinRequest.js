@@ -23,6 +23,8 @@ const ViewCabinRequest = () => {
         user: user,
       }
 
+      console.log("Data", bookingRequest);
+
       try {
         const response = await axios.post(`${API_BASE_URL}/user/viewRequest`, bookingRequest);
 
@@ -75,8 +77,9 @@ const ViewCabinRequest = () => {
                   <td>{request.userId}</td>
                   <td>{request.purpose}</td>
                   <td>{request.officeId}</td>
-                  <td>{request.startDate}</td>
-                  <td>{request.endDate}</td>
+                  <td>{new Date(request.startDate).toLocaleDateString("en-GB")}</td>
+                  <td>{new Date(request.endDate).toLocaleDateString("en-GB")}</td>
+
                   <td>{request.bookingValadity}</td>
                   <td>{request.status}</td>
                 </tr>

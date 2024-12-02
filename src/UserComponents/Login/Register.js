@@ -27,11 +27,11 @@ const Register = () => {
     setSuccessMessage(null);
   
 
-    const emailDomain = formData.emailId.split("@")[1];
-    if (emailDomain !== "yash.com") {
-      setError("Email domain must be '@yash.com'.");
-      return;
-    }
+    // const emailDomain = formData.emailId.split("@")[1];
+    // if (emailDomain !== "yash.com") {
+    //   setError("Email domain must be '@yash.com'.");
+    //   return;
+    // }
   
     try {
       const response = await fetch(`${API_BASE_URL}/user/register`, {

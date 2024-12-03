@@ -8,12 +8,16 @@ const Register = () => {
   const [formData, setFormData] = useState({
     emailId: "",
     name: "",
-    mobileNo:"",
+    mobileNo: "",
     password: "",
-    officeId: "YIT", 
+    officeId: "YIT",
   });
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({
+    mobileNo: "",
+    password: "",
+  });
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -21,18 +25,45 @@ const Register = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  // Validate mobile number (must be 10 digits)
+  const validateMobileNumber = (mobileNo) => {
+    const regex = /^\d{10}$/;
+    return regex.test(mobileNo);
+  };
+
+  // Validate password (at least 8 characters with a mix of uppercase, lowercase, and at least one special character)
+  const validatePassword = (password) => {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+    return regex.test(password);
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
-  
+    setValidationErrors({
+      mobileNo: "",
+      password: "",
+    });
 
-    // const emailDomain = formData.emailId.split("@")[1];
-    // if (emailDomain !== "yash.com") {
-    //   setError("Email domain must be '@yash.com'.");
-    //   return;
-    // }
-  
+    // Mobile number validation
+    if (!validateMobileNumber(formData.mobileNo)) {
+      setValidationErrors((prevErrors) => ({
+        ...prevErrors,
+        mobileNo: "Mobile number must be 10 digits.",
+      }));
+      return;
+    }
+
+    // Password validation
+    if (!validatePassword(formData.password)) {
+      setValidationErrors((prevErrors) => ({
+        ...prevErrors,
+        password: "Password must be at least 8 characters with a mix of uppercase, lowercase, and a special character.",
+      }));
+      return;
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/user/register`, {
         method: "POST",
@@ -41,14 +72,14 @@ const Register = () => {
         },
         body: JSON.stringify(formData),
       });
-  
+
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-  
+
       const result = await response.json();
       console.log("Registration Response:", result);
-  
+
       if (result.status === "success") {
         setSuccessMessage("Registration successful! Redirecting to login...");
         setTimeout(() => navigate("/login", { replace: true }), 2000);
@@ -60,7 +91,7 @@ const Register = () => {
       setError("An error occurred. Please try again.");
     }
   };
-  
+
   return (
     <div
       style={{ backgroundColor: "#C6E7FF", height: "100vh" }}
@@ -111,6 +142,9 @@ const Register = () => {
               onChange={handleInputChange}
               required
             />
+            {validationErrors.mobileNo && (
+              <small className="text-danger">{validationErrors.mobileNo}</small>
+            )}
           </div>
           <div className="mb-3">
             <label className="form-label">Password</label>
@@ -122,6 +156,9 @@ const Register = () => {
               onChange={handleInputChange}
               required
             />
+            {validationErrors.password && (
+              <small className="text-danger">{validationErrors.password}</small>
+            )}
           </div>
           <div className="mb-3">
             <label className="form-label">Office ID</label>
@@ -154,6 +191,15 @@ const Register = () => {
           <p className="text-success text-center mt-3">{successMessage}</p>
         )}
         {error && <p className="text-danger text-center mt-3">{error}</p>}
+        <div className="text-center mt-3">
+          <button
+            className="btn btn-link"
+            onClick={() => navigate("/login")}
+            style={{ color: "#007bff", textDecoration: "none" }}
+          >
+            Already have an account? Login
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import Cabin from "../Manager/Cabin";
 import AddCabin from "../Manager/AddCabin";
 import ViewBooking from "../Bookings/ViewBooking";
 import ViewAllCabinRequest from "../CabinRequest/ViewAllCabinRequest";
+import CabinRequestVip from "../Manager/CabinRequestVip";
 
 import Dashboard from "../Manager/Dashboard";
 
@@ -55,6 +56,19 @@ const MainComponent = () => {
             <CabinApproveRequest />
           </div>
         );
+
+        case "approveRequestVip":
+          return (
+            <div>
+              <CabinRequestVip />
+            </div>
+          );  
+        case "todaysBooking":
+          return (
+            <div>
+              <ViewBooking selectedFilterType="Today"/>
+            </div>
+          );
       case "addCabin":
         return (
           <div>
@@ -192,6 +206,19 @@ const MainComponent = () => {
                     Cabin Approval
                   </button>
                 </li>
+                <li>
+                  <button
+                    className={`btn btn-link text-decoration-none w-100 text-start ${
+                      activeSection === "approveRequestVip"
+                        ? "fw-bold text-primary"
+                        : "text-dark"
+                    }`}
+                    onClick={() => setActiveSection("approveRequestVip")}
+                  >
+                    Cabin Approval VIP
+                  </button>
+                </li>
+                
                 <li>
                   <button
                     className={`btn btn-link text-decoration-none w-100 text-start ${

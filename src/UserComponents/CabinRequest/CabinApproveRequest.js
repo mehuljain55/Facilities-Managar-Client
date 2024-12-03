@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Table, Modal, Button, Dropdown, Form } from 'react-bootstrap';
 import API_BASE_URL from "../Config/Config";
 
-const CabinApproveRequest = () => {
+const CabinApproveRequest = ({ filterStatus }) => {
   const [bookingRequests, setBookingRequests] = useState([]);
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [availableCabins, setAvailableCabins] = useState([]);
@@ -12,6 +12,8 @@ const CabinApproveRequest = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  
+  const [filterType, setFilterType] = useState(filterStatus || "all");
 
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -51,11 +53,12 @@ const CabinApproveRequest = () => {
     fetchBookingRequests();
   }, []);
 
-  const applyFilter = (type) => {
+
+  const applyFilter = (filterType) => {
     const now = new Date();
     let filteredData = bookingRequests;
   
-    switch (type) {
+    switch (filterType) {
       case 'today':
         filteredData = bookingRequests.filter((request) => {
           const requestDate = new Date(request.requestDate);
@@ -91,13 +94,13 @@ const CabinApproveRequest = () => {
   };
   
   const handleFilterButtonClick = (type) => {
-    applyFilter(type);
+    setFilterType(type);
+    applyFilter(filterType);
   };
   
   const handleApprove = async (request) => {
     setSelectedRequest(request);
     setShowModal(true);
-
     const user = JSON.parse(sessionStorage.getItem('user'));
     const token = sessionStorage.getItem('token');
 
@@ -108,6 +111,11 @@ const CabinApproveRequest = () => {
         cabinAvaliableModel: {
           startDate: request.startDate,
           endDate: request.endDate,
+          validFrom: request.validFrom,
+          validTill: request.validTill,
+          bookingValadity: request.bookingValadity,
+          bookingType: "Allotment",
+          officeId: request.officeId,
         },
       });
 
@@ -122,33 +130,86 @@ const CabinApproveRequest = () => {
   };
 
   const handleConfirmApproval = async () => {
-    const user = JSON.parse(sessionStorage.getItem('user'));
+    const userData = JSON.parse(sessionStorage.getItem('user'));
     const token = sessionStorage.getItem('token');
 
     try {
       const booking = {
         token,
-        user,
+        user: userData,
         cabinRequestModel: {
           requestId: selectedRequest.requestId,
-          cabinId: selectedCabin,
+          cabinId: selectedCabin
         },
       };
 
-      const response = await axios.post(`${API_BASE_URL}/admin/booking/approveBooking`, booking);
+      const response = await axios.post(`${API_BASE_URL}/admin/booking/approveBooking`, booking, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
+      console.log(response.data.status);
+      console.log(response.data.msg);
+      
+      
       if (response.data.status === 'success') {
         alert('Booking approved successfully');
         setShowModal(false);
         setSelectedRequest(null);
         setSelectedCabin(null);
         setBookingRequests((prev) => prev.filter((req) => req.requestId !== selectedRequest.requestId));
-        setFilteredRequests((prev) => prev.filter((req) => req.requestId !== selectedRequest.requestId));
       } else {
         alert('Failed to approve booking');
       }
     } catch (err) {
       alert('Error approving booking');
+    }finally{
+      fetchBookingRequests();
+    }
+  };
+
+  const handleCancelBooking = async (request) => {
+    const userData = JSON.parse(sessionStorage.getItem('user'));
+    const token = sessionStorage.getItem('token');
+
+    try {
+      const booking = {
+        token,
+        user: userData,
+        cabinRequestModel: {
+          requestId: request.requestId,
+        },
+      };
+
+      const response = await axios.post(`${API_BASE_URL}/admin/booking/cancelRequest`, booking, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.data.status === 'success') {
+        alert('Booking cancelled successfully');
+      } else {
+        alert('Failed to cancel booking');
+      }
+    } catch (err) {
+      alert('Error cancelling booking');
+    }finally{
+      fetchBookingRequests();
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'Booked':
+        return 'red';
+      case 'Requested':
+        return 'blue';
+      case 'Available':
+        return 'green';
+      default:
+        return 'gray';
     }
   };
 
@@ -210,9 +271,8 @@ const CabinApproveRequest = () => {
                   <td>{request.endDate}</td>
                   <td>{request.status}</td>
                   <td>
-                    <Button variant="dark" onClick={() => handleApprove(request)}>
-                      Approve
-                    </Button>
+                  <Button variant="dark" onClick={() => handleApprove(request)}>Approve</Button>
+                  <Button variant="red" onClick={() => handleCancelBooking(request)}>Reject</Button>
                   </td>
                 </tr>
               ))
@@ -227,28 +287,49 @@ const CabinApproveRequest = () => {
         </Table>
       )}
 
-      {/* Modal for approval */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+<Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Approve Booking</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>
-            <strong>Request ID:</strong> {selectedRequest?.requestId}
+          <p><strong>Request ID:</strong> {selectedRequest?.requestId}</p>
+          <p><strong>Cabin ID:</strong> {selectedRequest?.cabinId}  
+          <strong>  Cabin Name:</strong> {selectedRequest?.cabinName} 
           </p>
-          <p>
-            <strong>Cabin ID:</strong> {selectedRequest?.cabinId}
-          </p>
+          
+          <p><strong>User ID:</strong> {selectedRequest?.userId}</p>
+          <p><strong>Purpose:</strong> {selectedRequest?.purpose}</p>
+
+          <p><strong>Start Date:</strong> {selectedRequest?.startDate}</p>
+          <p><strong>End Date:</strong> {selectedRequest?.endDate}</p>
+          <p><strong>Cabin Status:</strong> {selectedRequest?.cabinAvaiability}</p>
+          
+          <Dropdown>
+            <Dropdown.Toggle variant="primary">
+              {selectedCabin ? `Cabin ID: ${selectedCabin}` : 'Select Cabin'}
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              {availableCabins.map((cabin) => (
+                <Dropdown.Item
+                  key={cabin.cabinId}
+                  onClick={() => cabin.status !== 'Booked' && setSelectedCabin(cabin.cabinId)}
+                  disabled={cabin.status === 'Booked'}
+                >
+                  {cabin.cabinName} ( Capacity: {cabin.capacity} ) 
+                  <span style={{ color: getStatusColor(cabin.status) }}> (Status: {cabin.msg})</span>
+                </Dropdown.Item>
+              ))}
+            </Dropdown.Menu>
+          </Dropdown>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleConfirmApproval}>
-            Confirm
+          <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
+          <Button variant="primary" onClick={handleConfirmApproval} disabled={!selectedCabin}>
+            Approve
           </Button>
         </Modal.Footer>
       </Modal>
+
     </div>
   );
 };

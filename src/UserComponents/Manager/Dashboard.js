@@ -117,7 +117,22 @@ const Dashboard = ({ activeSection }) => {
             </Card.Body>
           </Card>
         </Col>
+        <Col md={4}>
+          <Card bg="primary" text="white" className="text-center">
+            <Card.Body
+              style={{ cursor: "pointer" }}
+              onClick={() => activeSection("todaysBooking")}
+            >
+              <Card.Title>
+                <FaHourglassHalf size={30} /> Today Booking
+              </Card.Title>
+              <Card.Text>{userData.todaysCabinBooking}</Card.Text>
+            </Card.Body>
+          </Card>
+        </Col>
       </Row>
+
+       
     </Container>
   );
 };

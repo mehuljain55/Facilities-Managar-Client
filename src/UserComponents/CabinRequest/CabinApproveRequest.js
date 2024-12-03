@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, Modal, Button, Dropdown } from 'react-bootstrap';
+import { Table, Modal, Button, Dropdown, Form } from 'react-bootstrap';
 import API_BASE_URL from "../Config/Config";
 
 const CabinApproveRequest = () => {
   const [bookingRequests, setBookingRequests] = useState([]);
+  const [filteredRequests, setFilteredRequests] = useState([]);
   const [availableCabins, setAvailableCabins] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [selectedCabin, setSelectedCabin] = useState(null);
@@ -12,10 +13,13 @@ const CabinApproveRequest = () => {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
   const fetchBookingRequests = async () => {
-    setBookingRequests([]);
     setLoading(true);
     setError(null);
+
     const user = JSON.parse(sessionStorage.getItem('user'));
     const token = sessionStorage.getItem('token');
 
@@ -25,16 +29,15 @@ const CabinApproveRequest = () => {
       return;
     }
 
-    const bookingRequest = {
-      token: token,
-      user: user,
-    }
-
     try {
-      const response = await axios.post(`${API_BASE_URL}/admin/booking/viewRequest`, bookingRequest);
+      const response = await axios.post(`${API_BASE_URL}/admin/booking/viewRequest`, {
+        token,
+        user,
+      });
 
       if (response.data.status === 'success') {
         setBookingRequests(response.data.payload);
+        setFilteredRequests(response.data.payload); // Initialize with all data
       } else {
         setError('Failed to fetch booking requests');
       }
@@ -44,16 +47,57 @@ const CabinApproveRequest = () => {
     setLoading(false);
   };
 
-
-
   useEffect(() => {
-  
     fetchBookingRequests();
   }, []);
 
+  const applyFilter = (type) => {
+    const now = new Date();
+    let filteredData = bookingRequests;
+  
+    switch (type) {
+      case 'today':
+        filteredData = bookingRequests.filter((request) => {
+          const requestDate = new Date(request.requestDate);
+          return requestDate.toDateString() === now.toDateString();
+        });
+        break;
+  
+      case 'lastWeek':
+        const lastWeekStart = new Date();
+        lastWeekStart.setDate(now.getDate() - 7);
+        filteredData = bookingRequests.filter((request) => {
+          const requestDate = new Date(request.requestDate);
+          return requestDate >= lastWeekStart && requestDate <= now;
+        });
+        break;
+  
+      case 'lastMonth':
+        const lastMonthStart = new Date();
+        lastMonthStart.setMonth(now.getMonth() - 1);
+        filteredData = bookingRequests.filter((request) => {
+          const requestDate = new Date(request.requestDate);
+          return requestDate >= lastMonthStart && requestDate <= now;
+        });
+        break;
+  
+      case 'all':
+      default:
+        filteredData = bookingRequests; // No filtering applied
+        break;
+    }
+  
+    setFilteredRequests(filteredData);
+  };
+  
+  const handleFilterButtonClick = (type) => {
+    applyFilter(type);
+  };
+  
   const handleApprove = async (request) => {
     setSelectedRequest(request);
     setShowModal(true);
+
     const user = JSON.parse(sessionStorage.getItem('user'));
     const token = sessionStorage.getItem('token');
 
@@ -64,11 +108,6 @@ const CabinApproveRequest = () => {
         cabinAvaliableModel: {
           startDate: request.startDate,
           endDate: request.endDate,
-          validFrom: request.validFrom,
-          validTill: request.validTill,
-          bookingValadity: request.bookingValadity,
-          bookingType: "Allotment",
-          officeId: request.officeId,
         },
       });
 
@@ -83,90 +122,56 @@ const CabinApproveRequest = () => {
   };
 
   const handleConfirmApproval = async () => {
-    const userData = JSON.parse(sessionStorage.getItem('user'));
+    const user = JSON.parse(sessionStorage.getItem('user'));
     const token = sessionStorage.getItem('token');
 
     try {
       const booking = {
         token,
-        user: userData,
+        user,
         cabinRequestModel: {
           requestId: selectedRequest.requestId,
-          cabinId: selectedCabin
+          cabinId: selectedCabin,
         },
       };
 
-      const response = await axios.post(`${API_BASE_URL}/admin/booking/approveBooking`, booking, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
+      const response = await axios.post(`${API_BASE_URL}/admin/booking/approveBooking`, booking);
+
       if (response.data.status === 'success') {
         alert('Booking approved successfully');
         setShowModal(false);
         setSelectedRequest(null);
         setSelectedCabin(null);
         setBookingRequests((prev) => prev.filter((req) => req.requestId !== selectedRequest.requestId));
+        setFilteredRequests((prev) => prev.filter((req) => req.requestId !== selectedRequest.requestId));
       } else {
         alert('Failed to approve booking');
       }
     } catch (err) {
       alert('Error approving booking');
-    }finally{
-      fetchBookingRequests();
-    }
-  };
-
-  const handleCancelBooking = async (request) => {
-    const userData = JSON.parse(sessionStorage.getItem('user'));
-    const token = sessionStorage.getItem('token');
-
-    try {
-      const booking = {
-        token,
-        user: userData,
-        cabinRequestModel: {
-          requestId: request.requestId,
-        },
-      };
-
-      const response = await axios.post(`${API_BASE_URL}/admin/booking/cancelRequest`, booking, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (response.data.status === 'success') {
-        alert('Booking cancelled successfully');
-      } else {
-        alert('Failed to cancel booking');
-      }
-    } catch (err) {
-      alert('Error cancelling booking');
-    }finally{
-      fetchBookingRequests();
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Booked':
-        return 'red';
-      case 'Requested':
-        return 'blue';
-      case 'Available':
-        return 'green';
-      default:
-        return 'gray';
     }
   };
 
   return (
     <div className="container mt-5">
       <h2>Cabin Approval</h2>
-      
+
       {error && <div className="alert alert-danger mt-3">{error}</div>}
+
+      <div className="d-flex align-items-center mt-3">
+        <Button variant="primary" className="me-2" onClick={() => handleFilterButtonClick('today')}>
+          Today
+        </Button>
+        <Button variant="primary" className="me-2" onClick={() => handleFilterButtonClick('lastWeek')}>
+          Last Week
+        </Button>
+        <Button variant="primary" className="me-2" onClick={() => handleFilterButtonClick('lastMonth')}>
+          Last Month
+        </Button>
+        <Button variant="primary" onClick={() => handleFilterButtonClick('all')}>
+          All
+        </Button>
+      </div>
 
       {loading ? (
         <div className="spinner-border text-primary mt-3" role="status">
@@ -176,42 +181,44 @@ const CabinApproveRequest = () => {
         <Table striped bordered hover className="mt-4">
           <thead>
             <tr>
+              
               <th>Request ID</th>
+              <th> Date</th>
+              
               <th>Cabin ID</th>
               <th>User ID</th>
               <th>Purpose</th>
               <th>Office ID</th>
               <th>Start Date</th>
               <th>End Date</th>
-              <th>Booking Validity</th>
               <th>Status</th>
-              <th>Availability</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {bookingRequests.length > 0 ? (
-              bookingRequests.map((request) => (
+            {filteredRequests.length > 0 ? (
+              filteredRequests.map((request) => (
                 <tr key={request.requestId}>
                   <td>{request.requestId}</td>
+                  <td>{request.requestDate}</td>
+              
                   <td>{request.cabinId}</td>
                   <td>{request.userId}</td>
                   <td>{request.purpose}</td>
                   <td>{request.officeId}</td>
                   <td>{request.startDate}</td>
                   <td>{request.endDate}</td>
-                  <td>{request.bookingValadity}</td>
                   <td>{request.status}</td>
-                  <td>{request.cabinAvaiability}</td>
                   <td>
-                    <Button variant="dark" onClick={() => handleApprove(request)}>Approve</Button>
-                    <Button variant="red" onClick={() => handleCancelBooking(request)}>Cancel</Button>
+                    <Button variant="dark" onClick={() => handleApprove(request)}>
+                      Approve
+                    </Button>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="11" className="text-center">
+                <td colSpan="9" className="text-center">
                   No booking requests found
                 </td>
               </tr>
@@ -220,45 +227,25 @@ const CabinApproveRequest = () => {
         </Table>
       )}
 
+      {/* Modal for approval */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Approve Booking</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p><strong>Request ID:</strong> {selectedRequest?.requestId}</p>
-          <p><strong>Cabin ID:</strong> {selectedRequest?.cabinId}  
-          <strong>  Cabin Name:</strong> {selectedRequest?.cabinName} 
+          <p>
+            <strong>Request ID:</strong> {selectedRequest?.requestId}
           </p>
-          
-          <p><strong>User ID:</strong> {selectedRequest?.userId}</p>
-          <p><strong>Purpose:</strong> {selectedRequest?.purpose}</p>
-
-          <p><strong>Start Date:</strong> {selectedRequest?.startDate}</p>
-          <p><strong>End Date:</strong> {selectedRequest?.endDate}</p>
-          <p><strong>Cabin Status:</strong> {selectedRequest?.cabinAvaiability}</p>
-          
-          <Dropdown>
-            <Dropdown.Toggle variant="primary">
-              {selectedCabin ? `Cabin ID: ${selectedCabin}` : 'Select Cabin'}
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              {availableCabins.map((cabin) => (
-                <Dropdown.Item
-                  key={cabin.cabinId}
-                  onClick={() => cabin.status !== 'Booked' && setSelectedCabin(cabin.cabinId)}
-                  disabled={cabin.status === 'Booked'}
-                >
-                  {cabin.cabinName} ( Capacity: {cabin.capacity} ) 
-                  <span style={{ color: getStatusColor(cabin.status) }}> (Status: {cabin.msg})</span>
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
+          <p>
+            <strong>Cabin ID:</strong> {selectedRequest?.cabinId}
+          </p>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
-          <Button variant="primary" onClick={handleConfirmApproval} disabled={!selectedCabin}>
-            Approve
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleConfirmApproval}>
+            Confirm
           </Button>
         </Modal.Footer>
       </Modal>

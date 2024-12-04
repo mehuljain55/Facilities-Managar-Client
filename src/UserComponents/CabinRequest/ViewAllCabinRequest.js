@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Table, Dropdown, DropdownButton } from "react-bootstrap";
+import { Table, Dropdown, DropdownButton, Button } from "react-bootstrap";
 import API_BASE_URL from "../Config/Config";
 
 const ViewAllCabinRequest = ({ preselectedStatus }) => {
@@ -26,7 +26,7 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
     const bookingRequest = {
       token: token,
       user: user,
-      status: selectedStatus 
+      status: selectedStatus,
     };
 
     try {
@@ -43,7 +43,25 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
     setLoading(false);
   };
 
-  // Fetch data when the component mounts or when `selectedStatus` changes
+  const exportToExcel = async () => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/export/excel`, bookingRequests, {
+        responseType: "blob", // Ensure we get binary data
+      });
+
+      // Create a download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "cabin_requests.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (err) {
+      setError("Failed to export data to Excel");
+    }
+  };
+
   useEffect(() => {
     fetchBookingRequests();
   }, [selectedStatus]);
@@ -54,7 +72,6 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
 
       {error && <div className="alert alert-danger mt-3">{error}</div>}
 
-      
       <DropdownButton
         id="dropdown-status"
         title={`Status: ${selectedStatus}`}
@@ -66,6 +83,8 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
         <Dropdown.Item eventKey="rejected">Rejected</Dropdown.Item>
         <Dropdown.Item eventKey="hold">Hold</Dropdown.Item>
       </DropdownButton>
+
+     
 
       {loading ? (
         <div className="spinner-border text-primary mt-3" role="status">
@@ -82,7 +101,6 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
               <th>Office ID</th>
               <th>Valid From</th>
               <th>Valid Till</th>
-              
               <th>Start Date</th>
               <th>End Date</th>
               <th>Booking Validity</th>
@@ -100,11 +118,8 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
                   <td>{request.officeId}</td>
                   <td>{request.validFrom}</td>
                   <td>{request.validTill}</td>
-
                   <td>{new Date(request.startDate).toLocaleDateString("en-GB")}</td>
                   <td>{new Date(request.endDate).toLocaleDateString("en-GB")}</td>
-
-
                   <td>{request.bookingValadity}</td>
                   <td>{request.status}</td>
                 </tr>
@@ -118,7 +133,11 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
             )}
           </tbody>
         </Table>
+        
       )}
+       <Button onClick={exportToExcel} className="btn btn-primary mt-3">
+        Export 
+      </Button>
     </div>
   );
 };

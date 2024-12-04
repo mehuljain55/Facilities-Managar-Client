@@ -93,10 +93,15 @@ const ViewBooking = ({ selectedFilterType }) => {
     fetchBookingRequests();
   }, []); // Empty array to load data once on component mount
 
-  // Effect to handle filter change based on prop
   useEffect(() => {
-    handleFilterChange(selectedFilterType || filter);  // Apply filter when selectedFilterType prop changes
-  }, [selectedFilterType]);  // Runs when selectedFilterType changes
+    if (selectedFilterType) {
+      console.log("Selected Filter Type:", selectedFilterType);
+      console.log("Booking Requests:", bookingRequests);
+      setFilter(selectedFilterType); // Update local filter state
+      handleFilterChange(selectedFilterType); // Automatically apply the filter
+    }
+  }, [selectedFilterType, bookingRequests]); // Ensure bookingRequests is in the dependency array
+  
 
   const isDateRangeInInterval = (bookingStart, bookingEnd, rangeStart, rangeEnd) => {
     return (
@@ -173,6 +178,29 @@ const ViewBooking = ({ selectedFilterType }) => {
     setFilteredRequests(filteredData);
   };
 
+  const exportData = async () => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/export/bookings`, filteredRequests, {
+            responseType: 'blob', // Expect binary data
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        // Create a URL for the blob and trigger download
+        const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Bookings.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    } catch (error) {
+        console.error("Error exporting data", error);
+    }
+};
+
   const handleDateChange = (dates) => {
     const [start, end] = dates;
 
@@ -247,6 +275,7 @@ const ViewBooking = ({ selectedFilterType }) => {
               <th>Valid Till</th>
               <th>Start Date</th>
               <th>End Date</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
@@ -262,6 +291,7 @@ const ViewBooking = ({ selectedFilterType }) => {
                   <td>{request.validTill}</td>
                   <td>{new Date(request.startDate).toLocaleDateString("en-GB")}</td>
                   <td>{new Date(request.endDate).toLocaleDateString("en-GB")}</td>
+                  <td>{request.status}</td>
                 </tr>
               ))
             ) : (
@@ -272,6 +302,9 @@ const ViewBooking = ({ selectedFilterType }) => {
           </tbody>
         </Table>
       )}
+         <Button variant="primary" onClick={exportData} className="mt-3">
+                Export
+            </Button>
     </div>
   );
 };

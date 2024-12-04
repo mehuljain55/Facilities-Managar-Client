@@ -9,9 +9,9 @@ import Cabin from "../Manager/Cabin";
 import AddCabin from "../Manager/AddCabin";
 import ViewBooking from "../Bookings/ViewBooking";
 import ViewAllCabinRequest from "../CabinRequest/ViewAllCabinRequest";
-import CabinRequestVip from "../Manager/CabinRequestVip";
-
+import ApproveVipRequest from "../Manager/ApproveVipRequest";
 import Dashboard from "../Manager/Dashboard";
+import UserDashboard from "../User/UserDashboard";
 
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -34,7 +34,7 @@ const MainComponent = () => {
             {user.role=="manager" ? (
               <Dashboard activeSection={setActiveSection}/>
             ) : (
-              <p className="text-center text-danger">WelcomeP{user.name}</p>
+             <UserDashboard />
             )}
           </div>
         );
@@ -60,7 +60,7 @@ const MainComponent = () => {
         case "approveRequestVip":
           return (
             <div>
-              <CabinRequestVip />
+              <ApproveVipRequest />
             </div>
           );  
         case "todaysBooking":
@@ -285,6 +285,7 @@ const MainComponent = () => {
             boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
           }}
         >
+         
           <div className="container-fluid px-4 d-flex align-items-center">
             <button
               className="btn btn-light me-3"
@@ -292,6 +293,7 @@ const MainComponent = () => {
             >
               ☰
             </button>
+            <h2>CBS </h2>
             <Button
               onClick={() => setActiveSection("dashboard")}
               className="navbar-brand text-white fw-bold"

@@ -57,13 +57,14 @@ const ViewBooking = ({ selectedFilterType }) => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [error, setError] = useState("");
+  const user = JSON.parse(sessionStorage.getItem('user'));
+  const token = sessionStorage.getItem('token');
+
 
   useEffect(() => {
     const fetchBookingRequests = async () => {
       setLoading(true);
-      const user = JSON.parse(sessionStorage.getItem('user'));
-      const token = sessionStorage.getItem('token');
-
+    
       if (!user || !token) {
         setLoading(false);
         return;
@@ -80,7 +81,7 @@ const ViewBooking = ({ selectedFilterType }) => {
         if (response.data.status === 'success') {
           setBookingRequests(response.data.payload);
           setFilteredRequests(response.data.payload);
-          handleFilterChange(selectedFilterType || filter); // Apply filter after data fetch
+          handleFilterChange(selectedFilterType || filter);
         } else {
           console.log('Failed to fetch booking requests');
         }
@@ -91,16 +92,16 @@ const ViewBooking = ({ selectedFilterType }) => {
     };
 
     fetchBookingRequests();
-  }, []); // Empty array to load data once on component mount
+  }, []); 
 
   useEffect(() => {
     if (selectedFilterType) {
       console.log("Selected Filter Type:", selectedFilterType);
       console.log("Booking Requests:", bookingRequests);
-      setFilter(selectedFilterType); // Update local filter state
-      handleFilterChange(selectedFilterType); // Automatically apply the filter
+      setFilter(selectedFilterType); 
+      handleFilterChange(selectedFilterType); 
     }
-  }, [selectedFilterType, bookingRequests]); // Ensure bookingRequests is in the dependency array
+  }, [selectedFilterType, bookingRequests]); 
   
 
   const isDateRangeInInterval = (bookingStart, bookingEnd, rangeStart, rangeEnd) => {

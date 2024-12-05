@@ -6,13 +6,13 @@ import CabinApproveRequest from "../CabinRequest/CabinApproveRequest";
 import ViewCabinRequest from "../CabinRequest/ViewCabinRequest";
 import UserApprovalList from "../Manager/UserApprovalList";
 import Cabin from "../Manager/Cabin";
-import AddCabin from "../Manager/AddCabin";
 import ViewBooking from "../Bookings/ViewBooking";
 import ViewAllCabinRequest from "../CabinRequest/ViewAllCabinRequest";
 import ApproveVipRequest from "../Manager/ApproveVipRequest";
 import Dashboard from "../Manager/Dashboard";
 import UserDashboard from "../User/UserDashboard";
 import SuperAdminDashboard from "../SuperAdmin/SuperAdminDashboard";
+import CustomCabinReservation from "../Manager/CustomCabinReservation";
 
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -91,6 +91,13 @@ const MainComponent = () => {
               <ViewBooking selectedFilterType="All"/>
             </div>
           );
+
+          case "custom_cabin_reservation":
+            return (
+              <div>
+                <CustomCabinReservation />
+              </div>
+            );
      
     
           case "viewAllCabinRequest":
@@ -221,6 +228,21 @@ const MainComponent = () => {
                     Cabin Approval VIP
                   </button>
                 </li>
+
+                <li>
+                  <button
+                    className={`btn btn-link text-decoration-none w-100 text-start ${
+                      activeSection === "custom_cabin_reservation"
+                        ? "fw-bold text-primary"
+                        : "text-dark"
+                    }`}
+                    onClick={() => setActiveSection("custom_cabin_reservation")}
+                  >
+                    Cabin Reservation 
+                  </button>
+                </li>
+
+
                 
                 <li>
                   <button
@@ -272,6 +294,66 @@ const MainComponent = () => {
                      Cabin Manager
                   </button>
                 </li>
+              </ul>
+            </>
+          )}
+          {user.role === "super_admin" && (
+            <>
+              <h6 className="px-4 text-secondary">Super Admin</h6>
+              <ul className="list-unstyled px-3">
+                <li>
+                  <button
+                    className={`btn btn-link text-decoration-none w-100 text-start ${
+                      activeSection === "approveRequest"
+                        ? "fw-bold text-primary"
+                        : "text-dark"
+                    }`}
+                    onClick={() => setActiveSection("approveRequest")}
+                  >
+                    View Cabin Approval
+                  </button>
+                </li>
+         
+                
+                <li>
+                  <button
+                    className={`btn btn-link text-decoration-none w-100 text-start ${
+                      activeSection === "approveUserRequest"
+                        ? "fw-bold text-primary"
+                        : "text-dark"
+                    }`}
+                    onClick={() => setActiveSection("approveUserRequest")}
+                  >
+                    User Approval
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`btn btn-link text-decoration-none w-100 text-start ${
+                      activeSection === "viewBooking"
+                        ? "fw-bold text-primary"
+                        : "text-dark"
+                    }`}
+                    onClick={() => setActiveSection("viewBooking")}
+                  >
+                    View Booking
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`btn btn-link text-decoration-none w-100 text-start ${
+                      activeSection === "viewAllCabinRequest"
+                        ? "fw-bold text-primary"
+                        : "text-dark"
+                    }`}
+                    onClick={() => setActiveSection("viewAllCabinRequest")}
+                  >
+                    Cabin Request View
+                  </button>
+                </li>
+
+
+               
               </ul>
             </>
           )}

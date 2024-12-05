@@ -36,6 +36,7 @@ const Dashboard = ({ activeSection }) => {
         );
         if (response.data.status === "success") {
           setUserData(response.data.payload);
+         
         } else {
           alert("Failed to fetch booking requests");
         }
@@ -46,6 +47,8 @@ const Dashboard = ({ activeSection }) => {
 
     fetchData();
   }, []);
+
+  console.log("user data",userData);
 
   const ActionMark = ({ show }) => {
     return show ? (

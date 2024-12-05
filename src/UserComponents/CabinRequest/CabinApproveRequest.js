@@ -14,10 +14,10 @@ const CabinApproveRequest = ({ filterStatus }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
-
   const [filterType, setFilterType] = useState(filterStatus || "all");
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const userData = JSON.parse(sessionStorage.getItem('user'));
 
   const fetchBookingRequests = async (startDate, endDate) => {
     setLoading(true);
@@ -320,7 +320,9 @@ const CabinApproveRequest = ({ filterStatus }) => {
               <th>End Time</th>
               
               <th>Status</th>
-              <th>Action</th>
+              {userData.role !== 'super_admin' && ( 
+                     <th>Action</th>
+                  )}  
             </tr>
           </thead>
           <tbody>
@@ -339,17 +341,17 @@ const CabinApproveRequest = ({ filterStatus }) => {
                   <td>{formatTo12Hour(request.validFrom)}</td>
                   <td>{formatTo12Hour(request.validTill)}</td>
                   <td>{request.status}</td>
-                  <td>
-                  <div className="button-group">
-                    <Button variant="success" onClick={() => handleApprove(request)}>Approve</Button>
-                    <Button variant="danger" onClick={() => handleCancelBooking(request)}>Reject</Button>
-                    </div>
-                  </td>
+                  {userData.role !== 'super_admin' && ( 
+                     <div className="button-group">
+                     <Button variant="success" onClick={() => handleApprove(request)}>Approve</Button>
+                     <Button variant="danger" onClick={() => handleCancelBooking(request)}>Reject</Button>
+                     </div>
+                  )}  
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="9" className="text-center">No booking requests found</td>
+                <td colSpan="11" className="text-center">No booking requests found</td>
               </tr>
             )}
           </tbody>

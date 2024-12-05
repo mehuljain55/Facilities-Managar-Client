@@ -18,7 +18,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 const MainComponent = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // State to toggle sidebar
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); 
   const user = JSON.parse(sessionStorage.getItem("user")) || {};
 
   const handleLogout = () => {
@@ -123,7 +123,6 @@ const MainComponent = () => {
 
   return (
     <div className="d-flex vh-100">
-      {/* Sidebar */}
       <div
         className={`sidebar d-flex flex-column bg-light ${
           isSidebarOpen ? "sidebar-open" : "sidebar-closed"
@@ -275,7 +274,6 @@ const MainComponent = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="main-content flex-grow-1">
         <nav
           className="navbar navbar-expand-lg navbar-light"

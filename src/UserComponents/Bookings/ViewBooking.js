@@ -201,6 +201,21 @@ const ViewBooking = ({ selectedFilterType }) => {
     }
 };
 
+const formatTo12Hour = (time) => {
+  if (!time) return ""; 
+
+  const [hours, minutes] = time.split(":");
+  const date = new Date();
+  date.setHours(hours, minutes);
+
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  }).format(date);
+};
+
+
   const handleDateChange = (dates) => {
     const [start, end] = dates;
 
@@ -268,6 +283,8 @@ const ViewBooking = ({ selectedFilterType }) => {
             <tr>
               <th>Booking ID</th>
               <th>Cabin ID</th>
+              <th>Cabin Name</th>
+              
               <th>User ID</th>
               <th>Purpose</th>
               <th>Office ID</th>
@@ -284,11 +301,13 @@ const ViewBooking = ({ selectedFilterType }) => {
                 <tr key={request.bookingId}>
                   <td>{request.bookingId}</td>
                   <td>{request.cabinId}</td>
+                  <td>{request.cabinName}</td>
+                  
                   <td>{request.userId}</td>
                   <td>{request.purpose}</td>
                   <td>{request.officeId}</td>
-                  <td>{request.validFrom}</td>
-                  <td>{request.validTill}</td>
+                  <td>{formatTo12Hour(request.validFrom)}</td>
+                  <td>{formatTo12Hour(request.validTill)}</td>
                   <td>{new Date(request.startDate).toLocaleDateString("en-GB")}</td>
                   <td>{new Date(request.endDate).toLocaleDateString("en-GB")}</td>
                   <td>{request.status}</td>

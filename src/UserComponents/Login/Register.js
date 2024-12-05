@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import API_BASE_URL from "../Config/Config";
 import "bootstrap/dist/css/bootstrap.min.css";
 import YashLogo from "../Image/yash.jpg";
+import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import eye icons
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ const Register = () => {
     password: "",
     officeId: "YIT",
   });
+  const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [validationErrors, setValidationErrors] = useState({
@@ -49,17 +51,12 @@ const Register = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    // Validate the specific field
     const errorMessage = validateField(name, value);
-
-    // Update validation errors
     setValidationErrors((prevErrors) => ({
       ...prevErrors,
       [name]: errorMessage,
     }));
 
-    // Update form data
     setFormData({ ...formData, [name]: value });
   };
 
@@ -68,7 +65,6 @@ const Register = () => {
     setError(null);
     setSuccessMessage(null);
 
-    // Check if there are any validation errors
     const errors = Object.values(validationErrors).filter((msg) => msg !== "");
     if (errors.length > 0) {
       setError("Please correct the highlighted fields.");
@@ -162,14 +158,23 @@ const Register = () => {
           </div>
           <div className="mb-3">
             <label className="form-label">Password</label>
-            <input
-              type="password"
-              className="form-control"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              required
-            />
+            <div className="input-group">
+              <input
+                type={showPassword ? "text" : "password"} // Toggle input type
+                className="form-control"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+              />
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() => setShowPassword(!showPassword)} // Toggle visibility
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />} {/* Eye icon */}
+              </button>
+            </div>
             {validationErrors.password && (
               <small className="text-danger">{validationErrors.password}</small>
             )}

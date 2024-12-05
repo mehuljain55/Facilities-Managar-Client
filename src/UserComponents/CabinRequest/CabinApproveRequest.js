@@ -84,7 +84,7 @@ const CabinApproveRequest = ({ filterStatus }) => {
     setLoading(false);
   };
 
-  // Cancel booking function
+
   const handleCancelBooking = async (request) => {
     const userData = JSON.parse(sessionStorage.getItem('user'));
     const token = sessionStorage.getItem('token');
@@ -116,7 +116,6 @@ const CabinApproveRequest = ({ filterStatus }) => {
     }
   };
 
-  // Determine status color
   const getStatusColor = (status) => {
     switch (status) {
       case 'Booked':
@@ -130,16 +129,14 @@ const CabinApproveRequest = ({ filterStatus }) => {
     }
   };
 
-  // Apply initial filter when component loads
   useEffect(() => {
     if (filterType === 'all') {
-      fetchAllBookingRequests(); // Fetch all requests if 'all' is selected
+      fetchAllBookingRequests(); 
     } else {
-      applyFilter(filterType); // Apply date filter based on selected filter
+      applyFilter(filterType); 
     }
   }, [filterType]);
 
-  // Apply filter logic based on filterType
   const applyFilter = (filterType) => {
     const now = new Date();
     let start = null;
@@ -206,6 +203,22 @@ const CabinApproveRequest = ({ filterStatus }) => {
   const handleFilterButtonClick = (type) => {
     setFilterType(type);
   };
+
+  const formatTo12Hour = (time) => {
+    if (!time) return ""; 
+
+    const [hours, minutes] = time.split(":");
+    const date = new Date();
+    date.setHours(hours, minutes);
+
+    return new Intl.DateTimeFormat("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).format(date);
+  };
+
+
 
   const filterButtonStyle = (type) => ({
     backgroundColor: filterType === type ? 'darkblue' : 'lightblue',
@@ -295,13 +308,17 @@ const CabinApproveRequest = ({ filterStatus }) => {
           <thead>
             <tr>
               <th>Request ID</th>
-              <th>Date</th>
+              <th>Request Date</th>
               <th>Cabin ID</th>
+              <th>Cabin Name</th>
               <th>User ID</th>
               <th>Purpose</th>
               <th>Office ID</th>
               <th>Start Date</th>
               <th>End Date</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              
               <th>Status</th>
               <th>Action</th>
             </tr>
@@ -310,14 +327,17 @@ const CabinApproveRequest = ({ filterStatus }) => {
             {filteredRequests.length > 0 ? (
               filteredRequests.map((request) => (
                 <tr key={request.requestId}>
-                <td>{new Date(request.requestDate).toLocaleDateString('en-GB')}</td>
-                  <td>{request.requestDate}</td>
+                  <td>{request.requestId}</td>
+                  <td>{new Date(request.requestDate).toLocaleDateString('en-GB')}</td>
                   <td>{request.cabinId}</td>
+                  <td>{request.cabinName}</td>
                   <td>{request.userId}</td>
                   <td>{request.purpose}</td>
                   <td>{request.officeId}</td>
                   <td>{new Date(request.startDate).toLocaleDateString('en-GB')}</td>
                   <td>{new Date(request.endDate).toLocaleDateString('en-GB')}</td>
+                  <td>{formatTo12Hour(request.validFrom)}</td>
+                  <td>{formatTo12Hour(request.validTill)}</td>
                   <td>{request.status}</td>
                   <td>
                   <div className="button-group">

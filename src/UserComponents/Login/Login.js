@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import API_BASE_URL from "../Config/Config";
 import "bootstrap/dist/css/bootstrap.min.css";
 import YashLogo from "../Image/yash.jpg"; 
+import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import icons for eye and eye-slash
 
 const Login = ({ setLoginStatus }) => {
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
@@ -44,14 +46,16 @@ const Login = ({ setLoginStatus }) => {
       setError("An error occurred. Please try again.");
     }
   };
-  
+
   const handleRegister = () => {
     navigate("/register", { replace: true }); // Redirect to dashboard
-  }
-
+  };
 
   return (
-    <div style={{ backgroundColor: "#C6E7FF", height: "100vh" }} className="d-flex justify-content-center align-items-center">
+    <div
+      style={{ backgroundColor: "#C6E7FF", height: "100vh" }}
+      className="d-flex justify-content-center align-items-center"
+    >
       <div
         className="rounded p-4"
         style={{
@@ -77,18 +81,26 @@ const Login = ({ setLoginStatus }) => {
           </div>
           <div className="mb-3">
             <label className="form-label">Password</label>
-            <input
-              type="password"
-              className="form-control"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className="input-group">
+              <input
+                type={showPassword ? "text" : "password"} 
+                className="form-control"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() => setShowPassword(!showPassword)} 
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </div>
           <button
             type="submit"
-            className= "btn w-100 "
-            
+            className="btn w-100"
             style={{
               backgroundColor: "#FFDDAD",
               color: "#333",
@@ -100,19 +112,17 @@ const Login = ({ setLoginStatus }) => {
           </button>
         </form>
         <button
-            onClick={handleRegister}
-            className="btn w-100 mt-3"
-            style={{
-              backgroundColor: "#FFDDAD",
-              color: "#333",
-              fontWeight: "bold",
-              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
-            }}
-          >
-            Register
-          </button>
-
-        
+          onClick={handleRegister}
+          className="btn w-100 mt-3"
+          style={{
+            backgroundColor: "#FFDDAD",
+            color: "#333",
+            fontWeight: "bold",
+            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
+          }}
+        >
+          Register
+        </button>
         {error && <p className="text-danger text-center mt-3">{error}</p>}
       </div>
     </div>

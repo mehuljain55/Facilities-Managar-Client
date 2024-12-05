@@ -29,6 +29,7 @@ const ApproveVipRequest = () => {
         validFrom,
         validTill,
         bookingValadity: "single_day",
+        bookingType: "Allotment",
         officeId,
       },
       user: userData,
@@ -100,6 +101,7 @@ const ApproveVipRequest = () => {
         validFrom: userBooking.validFrom,
         validTill: userBooking.validTill,
         bookingValadity: "single_day",
+        bookingType: "Allotment",
         officeId: userBooking.officeId, 
       },
       user: userData,
@@ -155,6 +157,8 @@ const ApproveVipRequest = () => {
         officeId,
       },
     };
+
+
    console.log(apiRequestCabinModifyModel);
     try {
       const response = await axios.post(
@@ -242,64 +246,85 @@ const ApproveVipRequest = () => {
       )}
 
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>User Booking Details</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {userBooking ? (
-            <div>
-              <p><strong>Booking ID:</strong> {userBooking.bookingId}</p>
-              <p><strong>Cabin ID:</strong> {userBooking.cabinId}</p>
-              <p><strong>Start Date:</strong> {userBooking.date}</p>
-              <p><strong>Valid From:</strong> {userBooking.validFrom}</p>
-              <p><strong>Valid Till:</strong> {userBooking.validTill}</p>
+<Modal show={showModal} onHide={() => setShowModal(false)}>
+  <Modal.Header closeButton>
+    <Modal.Title>User Booking Details</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {userBooking ? (
+      <div>
+        <p><strong>Booking ID:</strong> {userBooking.bookingId}</p>
+        <p><strong>Cabin ID:</strong> {userBooking.cabinId}</p>
+        <p><strong>Start Date:</strong> {userBooking.date}</p>
+        <p><strong>Valid From:</strong> {userBooking.validFrom}</p>
+        <p><strong>Valid Till:</strong> {userBooking.validTill}</p>
 
-              <Button className="mt-3" onClick={handleFetchNewCabinList}>
-                Fetch New Cabins
-              </Button>
+        <Form.Group className="mt-3">
+          <Form.Label>Action</Form.Label>
+          <Form.Control
+            as="select"
+            onChange={(e) => {
+              const newPurpose = e.target.value;
+              setPurpose(newPurpose);
+              if (newPurpose === "Modify") {
+                handleFetchNewCabinList(); 
+              }
+            }}
+            value={purpose}
+          >
+            <option value="Modify">Modify Booking</option>
+            <option value="Cancel">Cancel Booking</option>
+          </Form.Control>
+        </Form.Group>
 
-              {userBookingCabins.length > 0 && (
-                <Form.Group className="mt-3">
-                  <Form.Label>Select a New Cabin</Form.Label>
-                  <Form.Select
-                    value={selectedCabinUser}
-                    onChange={(e) => setSelectedCabinUser(e.target.value)}
-                  >
-                    <option value="">Select Cabin</option>
-                    {userBookingCabins.map((cabin) => (
-                      <option key={cabin.cabinId} value={cabin.cabinId}>
-                        {cabin.cabinName} - Capacity: {cabin.capacity}
-                        <span className={getStatusColor(cabin.status)}>
-                          {" - Status: " + cabin.msg}
-                        </span>
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              )}
-              
-              <Form.Group className="mt-3">
-                <Form.Label>Action</Form.Label>
-                <Form.Control as="select" onChange={(e) => setPurpose(e.target.value)} value={purpose}>
-                  <option value="Modify">Modify Booking</option>
-                  <option value="Cancel">Cancel Booking</option>
-                </Form.Control>
-              </Form.Group>
-            </div>
-          ) : (
-            <p>No booking found.</p>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={handleSubmitBookingChange}>
-            Submit
-          </Button>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        {purpose === "Modify" && userBookingCabins.length > 0 && (
+          <Form.Group className="mt-3">
+            <Form.Label>Select a New Cabin</Form.Label>
+            <Form.Select
+              value={selectedCabinUser}
+              onChange={(e) => setSelectedCabinUser(e.target.value)}
+              required={purpose === "Modify"}
+            >
+              <option value="">Select Cabin</option>
+              {userBookingCabins.map((cabin) => (
+                <option
+                  key={cabin.cabinId}
+                  value={cabin.cabinId}
+                  disabled={cabin.status === "Booked" || cabin.status === "Reserved"}
+                >
+                  {cabin.cabinName} - Capacity: {cabin.capacity}
+                  <span className={getStatusColor(cabin.status)}>
+                    {" - Status: " + cabin.msg}
+                  </span>
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        )}
+      </div>
+    ) : (
+      <p>No booking found.</p>
+    )}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button
+      variant="primary"
+      onClick={() => {
+        if (purpose === "Modify" && !selectedCabinUser) {
+          alert("Please select a cabin before submitting.");
+        } else {
+          handleSubmitBookingChange();
+        }
+      }}
+    >
+      Submit
+    </Button>
+    <Button variant="secondary" onClick={() => setShowModal(false)}>
+      Close
+    </Button>
+  </Modal.Footer>
+</Modal>
+
     </div>
   );
 };

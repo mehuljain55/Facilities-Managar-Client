@@ -43,6 +43,20 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
     setLoading(false);
   };
 
+  const formatTo12Hour = (time) => {
+    if (!time) return ""; 
+
+    const [hours, minutes] = time.split(":");
+    const date = new Date();
+    date.setHours(hours, minutes);
+
+    return new Intl.DateTimeFormat("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).format(date);
+  };
+
   const exportToExcel = async () => {
     try {
       const response = await axios.post(`${API_BASE_URL}/export/excel`, bookingRequests, {
@@ -96,6 +110,8 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
             <tr>
               <th>Request ID</th>
               <th>Cabin ID</th>
+              <th>Cabin Name</th>
+           
               <th>User ID</th>
               <th>Purpose</th>
               <th>Office ID</th>
@@ -113,11 +129,13 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
                 <tr key={request.requestId}>
                   <td>{request.requestId}</td>
                   <td>{request.cabinId}</td>
+                  <td>{request.cabinName}</td>
+             
                   <td>{request.userId}</td>
                   <td>{request.purpose}</td>
                   <td>{request.officeId}</td>
-                  <td>{request.validFrom}</td>
-                  <td>{request.validTill}</td>
+                  <td>{formatTo12Hour(request.validFrom)}</td>
+                  <td>{formatTo12Hour(request.validTill)}</td>
                   <td>{new Date(request.startDate).toLocaleDateString("en-GB")}</td>
                   <td>{new Date(request.endDate).toLocaleDateString("en-GB")}</td>
                   <td>{request.bookingValadity}</td>

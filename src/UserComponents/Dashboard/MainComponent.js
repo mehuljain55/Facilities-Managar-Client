@@ -361,37 +361,40 @@ const MainComponent = () => {
       </div>
 
       <div className="main-content flex-grow-1">
-        <nav
-          className="navbar navbar-expand-lg navbar-light"
-          style={{
-            background: "#1f509a",
-            color: "white",
-            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-          }}
-        >
-         
-          <div className="container-fluid px-4 d-flex align-items-center">
-            <button
-              className="btn btn-light me-3"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            >
-              ☰
-            </button>
-            <h2>CBS </h2>
-            <Button
-              onClick={() => setActiveSection("dashboard")}
-              className="navbar-brand text-white fw-bold"
-              style={{ fontSize: "18px" }}
-            >
-              Dashboard
-            </Button>
-            <button className="btn btn-outline-light ms-auto" onClick={handleLogout}>
-              Logout
-            </button>
-          </div>
-        </nav>
-        <div className="container mt-4">{renderSection()}</div>
-      </div>
+  <nav
+    className="navbar navbar-expand-lg navbar-light"
+    style={{
+      background: "#1f509a",
+      color: "white",
+      boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+    }}
+  >
+    <div className="container-fluid px-4 d-flex align-items-center">
+      <button
+        className="btn btn-light me-3"
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        style={{ marginRight: "10px" }} 
+      >
+        ☰
+      </button>
+      
+      <h2 className="me-3" style={{ marginRight: "20px" }}>CBS</h2> 
+      
+      <Button
+        onClick={() => setActiveSection("dashboard")}
+        className="navbar-brand text-white fw-bold"
+        style={{ fontSize: "18px", marginRight: "20px" }} 
+      >
+        Dashboard
+      </Button>
+
+      <button className="btn btn-outline-light ms-auto" onClick={handleLogout}>
+        Logout
+      </button>
+    </div>
+  </nav>
+  <div className="container mt-4">{renderSection()}</div>
+</div>
     </div>
   );
 };

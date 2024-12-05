@@ -68,6 +68,20 @@ const UserDashboard = () => {
     }
   }, [selectedOffice, startDate, endDate]);
 
+  const formatTo12Hour = (time) => {
+    if (!time) return ""; 
+
+    const [hours, minutes] = time.split(":");
+    const date = new Date();
+    date.setHours(hours, minutes);
+
+    return new Intl.DateTimeFormat("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).format(date);
+  };
+
   return (
     <div className="container mt-4">
       <h2>User Dashboard</h2>
@@ -172,9 +186,9 @@ const UserDashboard = () => {
                     <td>{new Date(booking.startDate).toLocaleDateString('en-GB')}</td>
                   <td>{new Date(booking.endDate).toLocaleDateString('en-GB')}</td>
                 
-                    <td>{booking.validFrom}</td>
-                    <td>{booking.validTill}</td>
-                    <td>{booking.status}</td>
+                  <td>{formatTo12Hour(booking.validFrom)}</td>
+                  <td>{formatTo12Hour(booking.validTill)}</td>
+                        <td>{booking.status}</td>
                   </tr>
                 ))}
               </tbody>

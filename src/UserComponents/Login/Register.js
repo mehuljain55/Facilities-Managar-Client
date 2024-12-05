@@ -17,50 +17,61 @@ const Register = () => {
   const [validationErrors, setValidationErrors] = useState({
     mobileNo: "",
     password: "",
+    emailId: "",
   });
   const navigate = useNavigate();
 
+  const validateField = (name, value) => {
+    switch (name) {
+      case "mobileNo":
+        if (!/^\d{10}$/.test(value)) {
+          return "Mobile number must be 10 digits.";
+        }
+        return "";
+      case "password":
+        if (
+          !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/.test(
+            value
+          )
+        ) {
+          return "Password must be at least 8 characters with a mix of uppercase, lowercase, and a special character.";
+        }
+        return "";
+      case "emailId":
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          return "Please enter a valid email address.";
+        }
+        return "";
+      default:
+        return "";
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    // Validate the specific field
+    const errorMessage = validateField(name, value);
+
+    // Update validation errors
+    setValidationErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: errorMessage,
+    }));
+
+    // Update form data
     setFormData({ ...formData, [name]: value });
-  };
-
-  // Validate mobile number (must be 10 digits)
-  const validateMobileNumber = (mobileNo) => {
-    const regex = /^\d{10}$/;
-    return regex.test(mobileNo);
-  };
-
-  // Validate password (at least 8 characters with a mix of uppercase, lowercase, and at least one special character)
-  const validatePassword = (password) => {
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-    return regex.test(password);
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
-    setValidationErrors({
-      mobileNo: "",
-      password: "",
-    });
 
-    // Mobile number validation
-    if (!validateMobileNumber(formData.mobileNo)) {
-      setValidationErrors((prevErrors) => ({
-        ...prevErrors,
-        mobileNo: "Mobile number must be 10 digits.",
-      }));
-      return;
-    }
-
-    // Password validation
-    if (!validatePassword(formData.password)) {
-      setValidationErrors((prevErrors) => ({
-        ...prevErrors,
-        password: "Password must be at least 8 characters with a mix of uppercase, lowercase, and a special character.",
-      }));
+    // Check if there are any validation errors
+    const errors = Object.values(validationErrors).filter((msg) => msg !== "");
+    if (errors.length > 0) {
+      setError("Please correct the highlighted fields.");
       return;
     }
 
@@ -120,6 +131,9 @@ const Register = () => {
               onChange={handleInputChange}
               required
             />
+            {validationErrors.emailId && (
+              <small className="text-danger">{validationErrors.emailId}</small>
+            )}
           </div>
           <div className="mb-3">
             <label className="form-label">Name</label>
@@ -161,7 +175,7 @@ const Register = () => {
             )}
           </div>
           <div className="mb-3">
-            <label className="form-label">Office ID</label>
+            <label className="form-label">Office Location</label>
             <select
               className="form-select"
               name="officeId"

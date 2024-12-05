@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Container, Row, Col } from "react-bootstrap";
+import { Card, Container, Row, Col, Badge } from "react-bootstrap";
 import axios from "axios";
 import { FaCheckCircle, FaTimesCircle, FaHourglassHalf } from "react-icons/fa";
 import API_BASE_URL from "../Config/Config";
@@ -47,12 +47,32 @@ const Dashboard = ({ activeSection }) => {
     fetchData();
   }, []);
 
+  const ActionMark = ({ show }) => {
+    return show ? (
+      <Badge
+        pill
+        bg="danger"
+        style={{
+          position: "absolute",
+          top: "5px",
+          right: "5px",
+          fontSize: "1.2rem", // Make the badge larger
+          padding: "0.5rem 1rem",
+          borderRadius: "50%",
+        }}
+      >
+        !
+      </Badge>
+    ) : null;
+  };
+
   return (
     <Container className="mt-4">
       <h1 className="text-center mb-4">Manager Dashboard</h1>
       <Row className="g-4">
         <Col md={4}>
-          <Card bg="primary" text="white" className="text-center">
+          <Card bg="primary" text="white" className="text-center" style={{ position: "relative" }}>
+            <ActionMark show={userData.cabinRequestHold > 0} />
             <Card.Body
               style={{ cursor: "pointer" }}
               onClick={() => activeSection("approveRequest")}
@@ -94,7 +114,8 @@ const Dashboard = ({ activeSection }) => {
         </Col>
 
         <Col md={4}>
-          <Card bg="warning" text="dark" className="text-center">
+          <Card bg="warning" text="dark" className="text-center" style={{ position: "relative" }}>
+            <ActionMark show={userData.userRequestPending > 0} />
             <Card.Body
               style={{ cursor: "pointer" }}
               onClick={() => activeSection("approveUserRequest")}
@@ -131,8 +152,6 @@ const Dashboard = ({ activeSection }) => {
           </Card>
         </Col>
       </Row>
-
-       
     </Container>
   );
 };

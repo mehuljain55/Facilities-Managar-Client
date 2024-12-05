@@ -53,7 +53,7 @@ const MainComponent = () => {
       case "approveRequest":
         return (
           <div>
-            <CabinApproveRequest />
+            <CabinApproveRequest filterStatus='all' />
           </div>
         );
 
@@ -84,7 +84,7 @@ const MainComponent = () => {
      case "viewBooking":
           return (
             <div>
-              <ViewBooking />
+              <ViewBooking selectedFilterType="All"/>
             </div>
           );
      

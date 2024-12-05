@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, Modal, Button, Dropdown } from 'react-bootstrap';
 import API_BASE_URL from "../Config/Config";
+import './UserApprovalList.css';
 
 const UserApprovalList = () => {
   
@@ -156,9 +157,12 @@ const UserApprovalList = () => {
                 
                   <td>{request.officeId}</td>
                   <td>{request.status}</td>
-                  <Button variant="green" onClick={() => handleConfirmApproval(request)}>Approve</Button>
-                  <Button variant="red" onClick={() => handleBlockUser(request)}>Block</Button>
-                  
+                  <td>
+                  <div className="button-group">
+                  <Button variant="success" onClick={() => handleConfirmApproval(request)}>Approve</Button>
+                  <Button variant="danger" onClick={() => handleBlockUser(request)}>Block</Button>
+                  </div>
+                  </td>
                 </tr>
               ))
             ) : (

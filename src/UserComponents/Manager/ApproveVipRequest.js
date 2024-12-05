@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect , useRef} from "react";
 import { Button, Form, Modal, Table } from "react-bootstrap";
 import axios from "axios";
 import API_BASE_URL from "../Config/Config";
@@ -14,7 +14,10 @@ const ApproveVipRequest = () => {
   const [userBooking, setUserBooking] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [userBookingCabins, setUserBookingCabins] = useState([]);
-
+  const [purpose, setPurpose] = useState("");
+  const [availableCabinser, setAvailableCabinUser] = useState([]);
+  const [selectedCabinUser, setSelectedCabinUser] = useState("");
+  const initialRender = useRef(true);
 
   const userData = JSON.parse(sessionStorage.getItem("user"));
   const token = sessionStorage.getItem("token");
@@ -39,17 +42,25 @@ const ApproveVipRequest = () => {
       );
       const cabins = response.data.payload || [];
       setAvailableCabins(cabins);
-      if (cabins.length > 0) {
-        setSelectedCabin(cabins[0].cabinId);
-      }
+     
     } catch (error) {
       console.error("Error fetching cabins", error);
     }
   };
 
+  useEffect(() => {
+    if (initialRender.current) {
+      initialRender.current = false;
+      return;
+    }
+    handleViewUserBooking();
+  }, [selectedCabin]);
+
+
+
   const handleViewUserBooking = async () => {
+  
     if (!selectedCabin) {
-      alert("Please select a cabin before viewing booking details.");
       return;
     }
 
@@ -74,45 +85,6 @@ const ApproveVipRequest = () => {
       setShowModal(true);
     } catch (error) {
       console.error("Error fetching user booking", error);
-    }
-  };
-
-  const handleModifyCabin = async (newCabinId) => {
-    const payload = {
-      token,
-      user: userData,
-      userCabinModifyModel: {
-        bookingId: userBooking.bookingId,
-        newCabinId,
-      },
-    };
-
-    try {
-      await axios.post(`${API_BASE_URL}/save`, payload);
-      alert("Cabin modified successfully!");
-      setShowModal(false);
-    } catch (error) {
-      console.error("Error modifying cabin", error);
-    }
-  };
-
-  const handleCancelBooking = async () => {
-    const payload = {
-      token,
-      user: userData,
-      userCabinModifyModel: {
-        bookingId: userBooking.bookingId,
-        newCabinId: userBooking.cabinId,
-        status: "CANCEL",
-      },
-    };
-
-    try {
-      await axios.post(`${API_BASE_URL}/save`, payload);
-      alert("Booking canceled successfully!");
-      setShowModal(false);
-    } catch (error) {
-      console.error("Error canceling booking", error);
     }
   };
 
@@ -141,18 +113,16 @@ const ApproveVipRequest = () => {
       );
       let cabins = response.data.payload || [];
   
-    
       cabins = cabins.filter((cabin) => cabin.cabinId !== userBooking.cabinId);
   
       setUserBookingCabins(cabins);
       if (cabins.length > 0) {
-        setSelectedCabin(cabins[0].cabinId); 
+        setSelectedCabinUser(cabins[0].cabinId); 
       }
     } catch (error) {
       console.error("Error fetching new cabins for modification", error);
     }
   };
-  
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -166,7 +136,41 @@ const ApproveVipRequest = () => {
         return "";
     }
   };
-  
+
+  const handleSubmitBookingChange = async () => {
+    const apiRequestCabinModifyModel = {
+      token,
+      user: userData,
+      userCabinModifyModel: userBooking ? {
+        bookingId: userBooking.bookingId,
+        newCabinId: selectedCabinUser,
+        status: purpose === "Cancel" ? "cancelled" : "approved", // Use purpose to decide action
+      } : null,
+      cabinRequest: {
+        userId:vipUserId,
+        cabinId:selectedCabin,
+        startDate,
+        validFrom,
+        validTill,
+        officeId,
+      },
+    };
+   console.log(apiRequestCabinModifyModel);
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/admin/booking/createVipBooking`,
+        apiRequestCabinModifyModel
+      );
+      if (response.data.status === "success") {
+        alert("Booking processed successfully!");
+        setShowModal(false);
+      } else {
+        alert("Error processing booking.");
+      }
+    } catch (error) {
+      console.error("Error creating or modifying booking", error);
+    }
+  };
 
   return (
     <div className="container mt-4">
@@ -208,7 +212,7 @@ const ApproveVipRequest = () => {
           </Form.Select>
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>VIP User ID</Form.Label>
+          <Form.Label>VIP Name</Form.Label>
           <Form.Control
             type="text"
             value={vipUserId}
@@ -227,82 +231,75 @@ const ApproveVipRequest = () => {
           >
             {availableCabins.map((cabin) => (
               <option key={cabin.cabinId} value={cabin.cabinId}>
-             {cabin.cabinId}-  {cabin.cabinName} - Capacity: {cabin.capacity} 
-                    <span className={getStatusColor(cabin.status)}>
-                      {" - Status: " + cabin.msg}
-                    </span>
+                {cabin.cabinId} - {cabin.cabinName} - Capacity: {cabin.capacity}
+                <span className={getStatusColor(cabin.status)}>
+                  {" - Status: " + cabin.msg}
+                </span>
               </option>
             ))}
           </Form.Select>
         </div>
       )}
 
-      <Button className="mt-4" onClick={handleViewUserBooking}>
-        View User Booking
-      </Button>
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
-  <Modal.Header closeButton>
-    <Modal.Title>User Booking Details</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    {userBooking ? (
-      <div>
-        <p><strong>Booking ID:</strong> {userBooking.bookingId}</p>
-        <p><strong>Cabin ID:</strong> {userBooking.cabinId}</p>
-        <p><strong>Start Date:</strong> {userBooking.date}</p>
-        <p><strong>Valid From:</strong> {userBooking.validFrom}</p>
-        <p><strong>Valid Till:</strong> {userBooking.validTill}</p>
+        <Modal.Header closeButton>
+          <Modal.Title>User Booking Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {userBooking ? (
+            <div>
+              <p><strong>Booking ID:</strong> {userBooking.bookingId}</p>
+              <p><strong>Cabin ID:</strong> {userBooking.cabinId}</p>
+              <p><strong>Start Date:</strong> {userBooking.date}</p>
+              <p><strong>Valid From:</strong> {userBooking.validFrom}</p>
+              <p><strong>Valid Till:</strong> {userBooking.validTill}</p>
 
-        {/* Fetch new cabin list for modification */}
-        <Button
-          className="mt-3"
-          onClick={handleFetchNewCabinList}
-        >
-          Fetch New Cabins
-        </Button>
+              <Button className="mt-3" onClick={handleFetchNewCabinList}>
+                Fetch New Cabins
+              </Button>
 
-        {/* Dropdown for new cabin list */}
-        {userBookingCabins.length > 0 && (
-          <Form.Group className="mt-3">
-            <Form.Label>Select a New Cabin</Form.Label>
-            <Form.Select
-              value={selectedCabin}
-              onChange={(e) => setSelectedCabin(e.target.value)}
-            >
-              <option value="">Select Cabin</option>
-              {userBookingCabins.map((cabin) => (
-                <option key={cabin.cabinId} value={cabin.cabinId}>
-                  {cabin.cabinName} - Capacity: {cabin.capacity} 
-                    <span className={getStatusColor(cabin.status)}>
-                      {" - Status: " + cabin.msg}
-                    </span>
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
-        )}
-      </div>
-    ) : (
-      <p>No booking found.</p>
-    )}
-  </Modal.Body>
-  <Modal.Footer>
-    <Button
-      variant="primary"
-      onClick={() => handleModifyCabin(selectedCabin)}
-      disabled={!selectedCabin}
-    >
-      Confirm Cabin Change
-    </Button>
-    <Button variant="danger" onClick={handleCancelBooking}>
-      Cancel Booking
-    </Button>
-    <Button variant="secondary" onClick={() => setShowModal(false)}>
-      Close
-    </Button>
-  </Modal.Footer>
-</Modal>
+              {userBookingCabins.length > 0 && (
+                <Form.Group className="mt-3">
+                  <Form.Label>Select a New Cabin</Form.Label>
+                  <Form.Select
+                    value={selectedCabinUser}
+                    onChange={(e) => setSelectedCabinUser(e.target.value)}
+                  >
+                    <option value="">Select Cabin</option>
+                    {userBookingCabins.map((cabin) => (
+                      <option key={cabin.cabinId} value={cabin.cabinId}>
+                        {cabin.cabinName} - Capacity: {cabin.capacity}
+                        <span className={getStatusColor(cabin.status)}>
+                          {" - Status: " + cabin.msg}
+                        </span>
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              )}
+              
+              <Form.Group className="mt-3">
+                <Form.Label>Action</Form.Label>
+                <Form.Control as="select" onChange={(e) => setPurpose(e.target.value)} value={purpose}>
+                  <option value="Modify">Modify Booking</option>
+                  <option value="Cancel">Cancel Booking</option>
+                </Form.Control>
+              </Form.Group>
+            </div>
+          ) : (
+            <p>No booking found.</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={handleSubmitBookingChange}>
+            Submit
+          </Button>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

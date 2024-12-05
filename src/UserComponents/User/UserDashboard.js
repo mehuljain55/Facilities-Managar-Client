@@ -102,13 +102,13 @@ const UserDashboard = () => {
                   <td>{cabinData.cabin.cabinName}</td>
                   <td>{cabinData.cabin.capacity}</td>
                   <td>
-                    <button
-                      className="btn btn-info"
-                      onClick={() => handleViewBookings(cabinData.bookings)}
-                      disabled={cabinData.bookings.length === 0}
-                    >
-                      View Bookings
-                    </button>
+                  <button
+      className={`btn ${cabinData.bookings.length === 0 ? 'btn-success' : 'btn-info'}`}
+      onClick={() => handleViewBookings(cabinData.bookings)}
+      disabled={cabinData.bookings.length === 0}
+    >
+      {cabinData.bookings.length === 0 ? 'Available' : 'View Bookings'}
+    </button>
                   </td>
                 </tr>
               ))}

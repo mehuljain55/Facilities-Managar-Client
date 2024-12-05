@@ -232,7 +232,8 @@ const CabinRequest = () => {
                   <option
                     key={cabin.cabinId}
                     value={cabin.cabinId}
-                    disabled={cabin.status === "Booked"}
+                    disabled={cabin.status === "Booked" || cabin.status === "Reserved"}
+
                   >
                     {cabin.cabinName} - Capacity: {cabin.capacity} 
                     <span className={getStatusColor(cabin.status)}>

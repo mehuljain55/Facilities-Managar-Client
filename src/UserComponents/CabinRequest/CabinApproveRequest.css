@@ -1,0 +1,9 @@
+.button-group {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .button-group button {
+    flex: 1; 
+  }
+  

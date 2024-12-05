@@ -1,7 +1,6 @@
 import React from 'react';
 
 const MenuBar = ({ setActiveComponent, activeComponent }) => {
-  // Define styles as JavaScript objects
   const buttonStyles = {
     base: {
       padding: '10px 15px',

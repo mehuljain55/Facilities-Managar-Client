@@ -72,7 +72,6 @@ const UserDashboard = () => {
     <div className="container mt-4">
       <h2>User Dashboard</h2>
 
-      {/* Date Inputs */}
       <div className="d-flex align-items-center mb-4">
         <div className="me-3">
           <label className="form-label">Start Date:</label>
@@ -94,7 +93,6 @@ const UserDashboard = () => {
         </div>
       </div>
 
-      {/* Office Buttons as Cards */}
       <div className="d-flex justify-content-around mb-4 flex-wrap">
         {officeList.map((office) => (
           <Card

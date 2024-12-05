@@ -5,7 +5,7 @@ import API_BASE_URL from "../Config/Config";
 const EditCabin = () => {
   const [cabins, setCabins] = useState([]);
 
-  // Fetch data on component load
+
   useEffect(() => {
     const fetchData = async () => {
       const user = JSON.parse(sessionStorage.getItem("user"));
@@ -45,14 +45,12 @@ const EditCabin = () => {
     fetchData();
   }, []);
 
-  // Update cabin data on input change
   const handleInputChange = (e, cabinId, field) => {
     const value = e.target.value;
     setCabins((prevCabins) =>
       prevCabins.map((cabin) => {
         if (cabin.cabinId === cabinId) {
           if (field === "bookingType" && value === "multiple_day") {
-            // If bookingType is 'multiple_day', set status to 'Available'
             return { ...cabin, [field]: value, status: "Available" };
           } else {
             return { ...cabin, [field]: value };

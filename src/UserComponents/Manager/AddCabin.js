@@ -12,7 +12,6 @@ const AddCabin = () => {
   });
   const [error, setError] = useState('');
 
-  // Handle input changes for both new and existing cabins
   const handleInputChange = (e, index = null) => {
     const { name, value } = e.target;
 
@@ -29,7 +28,6 @@ const AddCabin = () => {
     }
   };
 
-  // Automatically add new cabin to the list when all fields are valid
   const handleAutoAddRow = () => {
     if (
       !newCabin.cabinName ||
@@ -37,10 +35,9 @@ const AddCabin = () => {
       !newCabin.bookingType ||
       newCabin.status === 'Select Status'
     ) {
-      return; // Don't add row if any field is empty or status is not selected
+      return; 
     }
 
-    // Check if row is already added before adding it again
     const isRowExist = cabins.some(
       (cabin) =>
         cabin.cabinName === newCabin.cabinName &&
@@ -61,15 +58,12 @@ const AddCabin = () => {
     }
   };
 
-  // Remove cabin from the list
   const handleRemoveRow = (index) => {
     const updatedCabins = cabins.filter((_, i) => i !== index);
     setCabins(updatedCabins);
   };
 
-  // Remove empty rows before API call and submit valid cabins
   const handleSubmit = () => {
-    // Remove empty cabins from the list (those with no cabinName or capacity)
     const validCabins = cabins.filter(
       (cabin) =>
         cabin.cabinName &&
@@ -86,14 +80,12 @@ const AddCabin = () => {
     const userData = JSON.parse(sessionStorage.getItem('user'));
     const token = sessionStorage.getItem('token');
 
-    // Prepare the payload for the API call
     const payload = {
       token: token,
       user: userData,
-      cabin: validCabins, // Sending cabins as an array
+      cabin: validCabins, 
     };
 
-    // API call for adding cabins
     axios
       .post(`${API_BASE_URL}/manager/addCabin`, payload)
       .then((response) => {

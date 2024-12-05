@@ -15,24 +15,26 @@ const UserDashboard = () => {
   const userData = JSON.parse(sessionStorage.getItem("user"));
   const token = sessionStorage.getItem("token");
 
-  useEffect(() => {
-    const fetchOfficeList = async () => {
-      const payload = {
-        token: token,
-        user: userData,
-      };
-
-      try {
-        const response = await axios.post(`${API_BASE_URL}/user/officeList`, payload);
-        setOfficeList(response.data.payload || []);
-        setSelectedOffice(response.data.payload[0] || ""); // Set default selection
-      } catch (error) {
-        console.error("Error fetching office list:", error);
-      }
+  const fetchOfficeList = async () => {
+    const payload = {
+      token: token,
+      user: userData,
     };
 
+    try {
+      const response = await axios.post(`${API_BASE_URL}/user/officeList`, payload);
+      setOfficeList(response.data.payload || []);
+      setSelectedOffice(response.data.payload[0] || ""); // Set default selection
+    } catch (error) {
+      console.error("Error fetching office list:", error);
+    }
+  };
+
+  
+  useEffect(() => {
+    
     fetchOfficeList();
-  }, [token, userData]);
+  }, []);
 
   const fetchCabins = async () => {
     if (!startDate || !endDate) {

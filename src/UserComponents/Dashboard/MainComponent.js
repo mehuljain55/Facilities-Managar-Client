@@ -12,6 +12,7 @@ import ViewAllCabinRequest from "../CabinRequest/ViewAllCabinRequest";
 import ApproveVipRequest from "../Manager/ApproveVipRequest";
 import Dashboard from "../Manager/Dashboard";
 import UserDashboard from "../User/UserDashboard";
+import SuperAdminDashboard from "../SuperAdmin/SuperAdminDashboard";
 
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -31,12 +32,15 @@ const MainComponent = () => {
       case "dashboard":
         return (
           <div>
-            {user.role=="manager" ? (
-              <Dashboard activeSection={setActiveSection}/>
-            ) : (
-             <UserDashboard />
-            )}
-          </div>
+          {user.role === "manager" ? (
+            <Dashboard activeSection={setActiveSection} />
+          ) : user.role === "super_admin" ? (
+            <SuperAdminDashboard activeSection={setActiveSection} />
+          ) : (
+            <UserDashboard />
+          )}
+        </div>
+        
         );
       case "cabinRequest":
         return (

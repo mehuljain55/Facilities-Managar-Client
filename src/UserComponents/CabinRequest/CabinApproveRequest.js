@@ -115,7 +115,14 @@ const CabinApproveRequest = ({ filterStatus }) => {
     } catch (err) {
       alert('Error cancelling booking');
     } finally {
-      fetchBookingRequests();
+      if (filterType === 'all')
+      {
+        fetchAllBookingRequests();
+      }else{
+        applyFilter(filterType)
+      }
+      
+      
     }
   };
 
@@ -265,7 +272,12 @@ const CabinApproveRequest = ({ filterStatus }) => {
     } catch (err) {
       alert('Error approving booking');
     } finally {
-      fetchBookingRequests();
+      if (filterType === 'all')
+        {
+          fetchAllBookingRequests();
+        }else{
+          applyFilter(filterType)
+        }
     }
   };
 

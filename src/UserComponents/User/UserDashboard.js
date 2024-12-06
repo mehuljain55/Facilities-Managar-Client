@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Modal, Button, Table, Card } from "react-bootstrap";
 import API_BASE_URL from "../Config/Config";
+import './UserDashboard.css';
 
 const UserDashboard = () => {
   const [officeList, setOfficeList] = useState([]);
@@ -107,26 +108,27 @@ const UserDashboard = () => {
         </div>
       </div>
 
-      <div className="d-flex justify-content-around mb-4 flex-wrap">
-        {officeList.map((office) => (
-          <Card
-            key={office}
-            className={`m-2 ${selectedOffice === office ? "border-primary" : ""}`}
-            style={{ width: "150px", cursor: "pointer" }}
-            onClick={() => setSelectedOffice(office)}
-          >
-            <Card.Body className="text-center">
-              <Card.Title>{office}</Card.Title>
-            </Card.Body>
-          </Card>
-        ))}
-      </div>
+   
+<div className="d-flex justify-content-start flex-wrap gap-2 mb-4">
+  {officeList.map((office) => (
+    <Card
+      key={office}
+      className={`office-card ${
+        selectedOffice === office ? "selected-office" : ""
+      }`}
+      onClick={() => setSelectedOffice(office)}
+    >
+      <Card.Body className="text-center p-2">
+        <Card.Title className="fs-6 m-0">{office}</Card.Title>
+      </Card.Body>
+    </Card>
+  ))}
+</div>
 
-      {/* Cabin List */}
       {cabins.length > 0 && (
         <div>
-          <h4>Cabin List</h4>
-          <Table striped bordered hover>
+          <div style={{ maxHeight: "350px", overflowY: "scroll", marginBottom: "1rem" }}>
+          <Table striped bordered hover className="cabin-table">
             <thead>
               <tr>
                 <th>Cabin Name</th>
@@ -154,49 +156,51 @@ const UserDashboard = () => {
               ))}
             </tbody>
           </Table>
+          </div>
         </div>
       )}
 
-      {/* Booking Details Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)} centered dialogClassName="modal-lg">
         <Modal.Header closeButton>
           <Modal.Title>Booking Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {selectedCabinBookings.length > 0 ? (
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>Booking ID</th>
-                  <th>User ID</th>
-                  <th>Purpose</th>
-                  <th>Start Date</th>
-                  <th>End Date</th>
-                  <th>Valid From</th>
-                  <th>Valid Till</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {selectedCabinBookings.map((booking) => (
-                  <tr key={booking.bookingId}>
-                    <td>{booking.bookingId}</td>
-                    <td>{booking.userId}</td>
-                    <td>{booking.purpose}</td>
-                    <td>{new Date(booking.startDate).toLocaleDateString('en-GB')}</td>
-                  <td>{new Date(booking.endDate).toLocaleDateString('en-GB')}</td>
-                
-                  <td>{formatTo12Hour(booking.validFrom)}</td>
-                  <td>{formatTo12Hour(booking.validTill)}</td>
-                        <td>{booking.status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          ) : (
-            <p>No bookings available for this cabin.</p>
-          )}
-        </Modal.Body>
+  <div style={{ maxHeight: "400px", overflowY: "scroll" }}>
+    {selectedCabinBookings.length > 0 ? (
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            <th>Booking ID</th>
+            <th>User ID</th>
+            <th>Purpose</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Valid From</th>
+            <th>Valid Till</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {selectedCabinBookings.map((booking) => (
+            <tr key={booking.bookingId}>
+              <td>{booking.bookingId}</td>
+              <td>{booking.userId}</td>
+              <td>{booking.purpose}</td>
+              <td>{new Date(booking.startDate).toLocaleDateString('en-GB')}</td>
+              <td>{new Date(booking.endDate).toLocaleDateString('en-GB')}</td>
+              <td>{booking.validFrom}</td>
+              <td>{booking.validTill}</td>
+              <td>{booking.status}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    ) : (
+      <p>Cabin is Available</p>
+    )}
+  </div>
+</Modal.Body>
+
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Close

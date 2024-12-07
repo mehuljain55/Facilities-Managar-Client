@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import API_BASE_URL from "../Config/Config";
 import axios from "axios";
+import CustomTimePicker from "../TimePicker/CustomTimePicker";
 
 const CabinRequest = () => {
   const [bookingValidity, setBookingValidity] = useState("single_day");
@@ -13,6 +14,8 @@ const CabinRequest = () => {
   const [cabins, setCabins] = useState([]);
   const [selectedCabin, setSelectedCabin] = useState("");
   const [loading, setLoading] = useState(false);
+  const [duration, setDuration] = useState("");
+ 
 
   const getUserData = () => {
     const storedData = sessionStorage.getItem("user");
@@ -117,6 +120,33 @@ const CabinRequest = () => {
     }
   };
 
+ 
+
+  const calculateDuration = (startTime, endTime) => {
+    const [startHours, startMinutes] = startTime.split(":").map(Number);
+    const [endHours, endMinutes] = endTime.split(":").map(Number);
+
+    // Convert both times to minutes since midnight
+    const startTotalMinutes = startHours * 60 + startMinutes;
+    const endTotalMinutes = endHours * 60 + endMinutes;
+
+    // Calculate the duration in minutes
+    const durationMinutes = endTotalMinutes - startTotalMinutes;
+
+    // Convert the duration into hours and minutes
+    const hours = Math.floor(durationMinutes / 60);
+    const minutes = durationMinutes % 60;
+
+    return `${hours} hours ${minutes} minutes`;
+  };
+
+  useEffect(() => {
+    const calculatedDuration = calculateDuration(validFrom, validTill);
+    setDuration(calculatedDuration);
+  }, [validFrom, validTill]);
+
+
+
   const getStatusColor = (status) => {
     switch (status) {
       case "Booked":
@@ -129,6 +159,7 @@ const CabinRequest = () => {
         return "";
     }
   };
+
 
   return (
     <div className="container mt-5">
@@ -168,29 +199,48 @@ const CabinRequest = () => {
               />
             </div>
           )}
+{bookingValidity === "single_day" && (
+  <>
+    <div className="mb-3">
+      <label className="form-label">Start Time</label>
+      <CustomTimePicker
+        value={validFrom}
+        onChange={(time) => {
+          setValidFrom(time);
+        }}
+      />
+    </div>
+    <div className="mb-3">
+      <label className="form-label">End Time</label>
+      <CustomTimePicker
+        value={validTill}
+        onChange={(time) => {
+          if (validFrom && time > validFrom) {
+            setValidTill(time);
+          } else {
+            alert("End time must be greater than start time.");
+            setValidFrom(""); // Reset start time
+            setDuration("");    // Reset duration
+          }
+        }}
+      />
+    </div>
+    {validFrom && validTill && validTill <= validFrom && (
+      <p className="text-danger">End time must be later than start time.</p>
+    )}
 
-          {bookingValidity === "single_day" && (
-            <>
-              <div className="mb-3">
-                <label className="form-label">Valid From</label>
-                <input
-                  type="time"
-                  className="form-control"
-                  value={validFrom}
-                  onChange={(e) => setValidFrom(e.target.value)}
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Valid Till</label>
-                <input
-                  type="time"
-                  className="form-control"
-                  value={validTill}
-                  onChange={(e) => setValidTill(e.target.value)}
-                />
-              </div>
-            </>
-          )}
+    <div className="mb-3">
+      <label className="form-label">Duration</label>
+      <input
+        type="text"
+        className="form-control"
+        value={duration}
+        placeholder="Enter booking purpose"
+      />
+    </div>
+  </>
+)}
+
 
           <div className="mb-3">
             <label className="form-label">Purpose</label>

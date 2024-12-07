@@ -43,9 +43,25 @@ const ViewCabinRequest = () => {
     fetchBookingRequests();
   }, []);
 
+  const formatTo12Hour = (time) => {
+    if (!time) return ""; 
+
+    const [hours, minutes] = time.split(":");
+    const date = new Date();
+    date.setHours(hours, minutes);
+
+    return new Intl.DateTimeFormat("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).format(date);
+  };
+
   const filteredRequests = filterStatus === 'all'
     ? bookingRequests
     : bookingRequests.filter(request => request.status.toLowerCase() === filterStatus.toLowerCase());
+
+    
 
   return (
     <div className="container mt-5">
@@ -77,6 +93,8 @@ const ViewCabinRequest = () => {
               <th>User ID</th>
               <th>Purpose</th>
               <th>Office ID</th>
+              <th>Start Time</th>
+              <th>End Time</th>
               <th>Start Date</th>
               <th>End Date</th>
               <th>Booking Validity</th>
@@ -92,8 +110,12 @@ const ViewCabinRequest = () => {
                   <td>{request.userId}</td>
                   <td>{request.purpose}</td>
                   <td>{request.officeId}</td>
+                  <td>{formatTo12Hour(request.validFrom)}</td>
+                  <td>{formatTo12Hour(request.validTill)}</td>
+             
                   <td>{new Date(request.startDate).toLocaleDateString("en-GB")}</td>
                   <td>{new Date(request.endDate).toLocaleDateString("en-GB")}</td>
+               
                   <td>{request.bookingValadity}</td>
                   <td>{request.status}</td>
                 </tr>

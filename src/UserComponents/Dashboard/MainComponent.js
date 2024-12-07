@@ -22,7 +22,6 @@ const MainComponent = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); 
   const user = JSON.parse(sessionStorage.getItem("user")) || {};
 
-  
   const handleLogout = () => {
     sessionStorage.clear();
     window.location.reload();

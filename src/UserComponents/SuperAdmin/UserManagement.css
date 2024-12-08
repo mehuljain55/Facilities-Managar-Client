@@ -1,41 +1,48 @@
-/* UserManagement.css */
+/* Container for the entire user management section */
 .user-management-container {
-    margin-top: 50px;
-  }
-  
-  .user-management-container h2 {
-    font-size: 2rem;
-  }
-  
-  .user-management-container .mb-3 {
-    display: flex;
-    align-items: center;
-  }
-  
-  .user-management-container .user-table-container {
-    max-height: 400px;
-    overflow-y: auto;
-    margin-top: 20px;
-  }
-  
-  .user-management-container .table th,
-  .user-management-container .table td {
-    vertical-align: middle;
-  }
-  
-  .user-management-container .table td select {
-    width: 100%;
-  }
-  
-  .user-management-container .alert {
-    margin-top: 20px;
-  }
-  
-  .user-management-container .spinner-border {
-    margin-top: 20px;
-  }
-  
-  .user-management-container button {
-    margin-top: 20px;
-  }
-  
+  padding: 20px;
+}
+
+/* Flex container to keep elements aligned in one row */
+.menu-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Ensures space is evenly distributed */
+}
+
+/* Role button container */
+.role-buttons {
+  display: flex;
+  gap: 10px; /* Adds some space between buttons */
+}
+
+/* Styling for the Office dropdown and its label */
+.office-dropdown-container {
+  display: flex;
+  align-items: center;
+  margin-left: auto; /* Pushes it to the right */
+}
+
+.custom-dropdown {
+  height: 38px;
+  margin-left: 5px; /* Adds space between label and dropdown */
+}
+
+/* Table styling */
+.user-table-container {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 20px;
+}
+
+/* Center the update button */
+.update-button {
+  width: 150px;
+  padding: 10px;
+}
+
+/* Label styling */
+.office-dropdown-container label {
+  font-weight: bold;
+  font-size: 1rem;
+}

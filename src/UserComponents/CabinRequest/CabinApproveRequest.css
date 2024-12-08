@@ -1,9 +1,55 @@
+/* Unique class for the container to prevent conflicts */
+.cabins-container {
+  margin-top: 30px;
+}
+
+/* Styling for the filter buttons container */
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.filter-buttons button {
+  flex: 1;
+}
+
+/* Styling for the table with fixed height */
+.cabins-table {
+  height: 400px;
+  overflow-y: auto;
+  display: block;
+  margin-top: 20px;
+}
+
+.cabins-table tbody {
+  display: block;
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.cabins-table th,
+.cabins-table td {
+  width: 120px;
+  text-align: center;
+}
+
+/* Styling the button group */
 .button-group {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .button-group button {
-    flex: 1; 
-  }
-  
+  display: flex;
+  gap: 8px;
+}
+
+.button-group button {
+  flex: 1;
+}
+
+/* Additional styling for the modal dropdown items */
+.cabin-dropdown-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+.cabin-dropdown-item span {
+  font-size: 0.9rem;
+  color: gray;
+}

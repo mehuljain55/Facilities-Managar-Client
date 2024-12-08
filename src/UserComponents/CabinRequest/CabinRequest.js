@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import API_BASE_URL from "../Config/Config";
 import axios from "axios";
 import CustomTimePicker from "../TimePicker/CustomTimePicker";
-import { use } from "react";
+
 
 const CabinRequest = () => {
   const [bookingValidity, setBookingValidity] = useState("single_day");

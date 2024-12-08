@@ -181,6 +181,12 @@ const ViewBooking = ({ selectedFilterType }) => {
 
   const exportData = async () => {
     try {
+     
+      if(filteredRequests.length===0)
+      {
+        alert("Nothing to export");
+        return;
+      }
         const response = await axios.post(`${API_BASE_URL}/export/bookings`, filteredRequests, {
             responseType: 'blob', // Expect binary data
             headers: {

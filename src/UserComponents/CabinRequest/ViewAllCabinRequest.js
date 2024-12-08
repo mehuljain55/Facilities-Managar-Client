@@ -59,6 +59,13 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
 
   const exportToExcel = async () => {
     try {
+
+      if(bookingRequests.length===0)
+      {
+        alert("Nothing to export");
+        return;
+      }
+
       const response = await axios.post(`${API_BASE_URL}/export/excel`, bookingRequests, {
         responseType: "blob", // Ensure we get binary data
       });
@@ -105,7 +112,9 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
           <span className="visually-hidden">Loading...</span>
         </div>
       ) : (
-        <Table striped bordered hover className="mt-4">
+        <div className="cabin-request-view-table-container mt-4" style={{ maxHeight: "400px", overflowY: "auto" }}>
+       
+     <Table striped bordered hover className="mt-4">
           <thead>
             <tr>
               <th>Request ID</th>
@@ -151,11 +160,13 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
             )}
           </tbody>
         </Table>
+        </div>
         
       )}
-       <Button onClick={exportToExcel} className="btn btn-primary mt-3">
-        Export 
-      </Button>
+     <Button onClick={exportToExcel} className="btn btn-primary mt-3 d-flex justify-content-center mx-auto">
+  Export
+</Button>
+
     </div>
   );
 };

@@ -61,7 +61,7 @@ const EditCabin = () => {
     );
   };
 
-  // Submit updated cabin data
+  
   const handleSubmit = async () => {
     const user = JSON.parse(sessionStorage.getItem("user"));
     const token = sessionStorage.getItem("token");

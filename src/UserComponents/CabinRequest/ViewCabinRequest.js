@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, Dropdown, DropdownButton } from 'react-bootstrap';
 import API_BASE_URL from "../Config/Config";
-import './ViewCabinRequest.css'; // Import the CSS file
+import './ViewCabinRequest.css';
 
 const ViewCabinRequest = () => {
   const [bookingRequests, setBookingRequests] = useState([]);
@@ -85,6 +85,7 @@ const ViewCabinRequest = () => {
         </div>
       ) : (
         <div className="table-container">
+      
           <Table striped bordered hover>
             <thead>
               <tr>

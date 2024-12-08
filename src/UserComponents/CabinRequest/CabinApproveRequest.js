@@ -319,6 +319,9 @@ const CabinApproveRequest = ({ filterStatus }) => {
           <span className="visually-hidden">Loading...</span>
         </div>
       ) : (
+        
+        <div className="cabin-approve-table-container mt-4" style={{ maxHeight: "450px", overflowY: "auto" }}>
+        
         <Table striped bordered hover className="mt-4">
           <thead>
             <tr>
@@ -371,6 +374,7 @@ const CabinApproveRequest = ({ filterStatus }) => {
             )}
           </tbody>
         </Table>
+        </div>
       )}
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>

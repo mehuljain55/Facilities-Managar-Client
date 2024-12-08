@@ -128,34 +128,42 @@ const UserManagement = () => {
     <div className="user-management-container mt-5">
       <h2>User Manager</h2>
 
-      <div className="mb-3 d-flex align-items-center">
-        <Button
-          variant={selectedRole === "manager" ? "primary" : "light"}
-          className="me-2"
-          onClick={() => handleRoleChange("manager")}
-        >
-          Manager
-        </Button>
-        <Button
-          variant={selectedRole === "user" ? "primary" : "light"}
-          onClick={() => handleRoleChange("user")}
-        >
-          User
-        </Button>
+      <div className="menu-container d-flex align-items-center mb-3">
+  <div className="role-buttons d-flex">
+    <Button
+      variant={selectedRole === "manager" ? "primary" : "light"}
+      className="me-2 custom-role-button"
+      onClick={() => handleRoleChange("manager")}
+    >
+      Manager
+    </Button>
+    <Button
+      variant={selectedRole === "user" ? "primary" : "light"}
+      className="me-2 custom-role-button"
+      onClick={() => handleRoleChange("user")}
+    >
+      User
+    </Button>
+  </div>
 
-        <Form.Select
-          className="ms-3"
-          style={{ maxWidth: "200px" }}
-          value={selectedOffice}
-          onChange={handleOfficeChange}
-        >
-          {officeList.map((office, index) => (
-            <option key={index} value={office}>
-              {office}
-            </option>
-          ))}
-        </Form.Select>
-      </div>
+  <div className="office-dropdown-container d-flex align-items-center ms-auto">
+    <Form.Label htmlFor="officeId" className="me-2">
+      Office Location
+    </Form.Label>
+    <Form.Select
+      id="officeId"
+      className="custom-dropdown"
+      value={selectedOffice}
+      onChange={handleOfficeChange}
+    >
+      {officeList.map((office, index) => (
+        <option key={index} value={office}>
+          {office}
+        </option>
+      ))}
+    </Form.Select>
+  </div>
+</div>
 
       {error && <div className="alert alert-danger mt-3">{error}</div>}
 
@@ -247,9 +255,11 @@ const UserManagement = () => {
         </div>
       )}
 
-      <Button className="mt-3" onClick={handleSubmit}>
-        Update
-      </Button>
+      <div className="d-flex justify-content-center mt-3">
+        <Button className="update-button" onClick={handleSubmit}>
+          Update
+        </Button>
+      </div>
     </div>
   );
 };

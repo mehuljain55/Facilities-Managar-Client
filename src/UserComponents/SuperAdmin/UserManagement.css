@@ -1,47 +1,41 @@
-/* Container for the entire user management section */
+
 .user-management-container {
   padding: 20px;
 }
 
-/* Flex container to keep elements aligned in one row */
 .menu-container {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Ensures space is evenly distributed */
+  justify-content: space-between; 
 }
 
-/* Role button container */
 .role-buttons {
   display: flex;
-  gap: 10px; /* Adds some space between buttons */
+  gap: 10px; 
 }
 
-/* Styling for the Office dropdown and its label */
 .office-dropdown-container {
   display: flex;
   align-items: center;
-  margin-left: auto; /* Pushes it to the right */
+  margin-left: auto; 
 }
 
 .custom-dropdown {
   height: 38px;
-  margin-left: 5px; /* Adds space between label and dropdown */
+  margin-left: 5px; 
 }
 
-/* Table styling */
 .user-table-container {
   max-height: 400px;
   overflow-y: auto;
   margin-top: 20px;
 }
 
-/* Center the update button */
 .update-button {
   width: 150px;
   padding: 10px;
 }
 
-/* Label styling */
 .office-dropdown-container label {
   font-weight: bold;
   font-size: 1rem;

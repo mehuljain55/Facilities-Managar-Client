@@ -3,7 +3,6 @@ import { Card, Container, Row, Col, Badge, Form } from "react-bootstrap";
 import axios from "axios";
 import { FaCheckCircle, FaTimesCircle, FaHourglassHalf } from "react-icons/fa";
 import API_BASE_URL from "../Config/Config";
-
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const SuperAdminDashboard = ({ activeSection }) => {

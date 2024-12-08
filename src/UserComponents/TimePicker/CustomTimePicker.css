@@ -1,10 +1,10 @@
 .circular-select {
     border-radius: 50%;
-    width: 50px; /* Adjust width for a circular appearance */
-    height: 50px; /* Adjust height for a circular appearance */
+    width: 50px; 
+    height: 50px;
     text-align: center;
     padding: 0;
-    font-size: 1.2rem; /* Adjust font size for better visibility */
+    font-size: 1.2rem; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -29,10 +29,10 @@
   }
   
   .me-2 {
-    margin-right: 0.5rem; /* Add margin between selects */
+    margin-right: 0.5rem; 
   }
   
   select {
-    border: 1px solid #ccc; /* Add border to select elements */
+    border: 1px solid #ccc; 
   }
   

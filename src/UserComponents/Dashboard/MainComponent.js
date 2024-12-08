@@ -4,6 +4,7 @@ import {  Button, Dropdown } from 'react-bootstrap';
 import CabinRequest from "../CabinRequest/CabinRequest";
 import CabinApproveRequest from "../CabinRequest/CabinApproveRequest";
 import ViewCabinRequest from "../CabinRequest/ViewCabinRequest";
+import UserManagement from "../SuperAdmin/UserManagement";
 import UserApprovalList from "../Manager/UserApprovalList";
 import Cabin from "../Manager/Cabin";
 import ViewBooking from "../Bookings/ViewBooking";
@@ -13,8 +14,6 @@ import Dashboard from "../Manager/Dashboard";
 import UserDashboard from "../User/UserDashboard";
 import SuperAdminDashboard from "../SuperAdmin/SuperAdminDashboard";
 import CustomCabinReservation from "../Manager/CustomCabinReservation";
-
-
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const MainComponent = () => {
@@ -120,6 +119,13 @@ const MainComponent = () => {
             <ViewAllCabinRequest preselectedStatus="rejected" />
               </div>
               );
+
+              case "userManagement":
+                return (
+                 <div>
+                 <UserManagement />
+                   </div>
+                   );
     
             
       default:
@@ -281,6 +287,8 @@ const MainComponent = () => {
                   </button>
                 </li>
 
+           
+
 
                 <li>
                   <button
@@ -349,6 +357,19 @@ const MainComponent = () => {
                     onClick={() => setActiveSection("viewAllCabinRequest")}
                   >
                     Cabin Request View
+                  </button>
+                </li>
+
+                <li>
+                  <button
+                    className={`btn btn-link text-decoration-none w-100 text-start ${
+                      activeSection === "userManagement"
+                        ? "fw-bold text-primary"
+                        : "text-dark"
+                    }`}
+                    onClick={() => setActiveSection("userManagement")}
+                  >
+                   User Manager
                   </button>
                 </li>
 

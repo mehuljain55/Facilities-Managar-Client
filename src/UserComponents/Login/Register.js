@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import API_BASE_URL from "../Config/Config";
 import "bootstrap/dist/css/bootstrap.min.css";
 import YashLogo from "../Image/yash.jpg";
@@ -11,8 +12,9 @@ const Register = () => {
     name: "",
     mobileNo: "",
     password: "",
-    officeId: "YIT",
+    officeId: "",
   });
+  const [officeList, setOfficeList] = useState([]); // State for storing office list
   const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -22,6 +24,28 @@ const Register = () => {
     emailId: "",
   });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchOfficeList = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/office/officeList`);
+        if (response.data.status === "success") {
+          setOfficeList(response.data.payload);
+          setFormData((prevData) => ({
+            ...prevData,
+            officeId: response.data.payload[0], 
+          }));
+        } else {
+          setError("Failed to load office list.");
+        }
+      } catch (err) {
+        console.error("Error fetching office list:", err);
+        setError("An error occurred while fetching office locations.");
+      }
+    };
+
+    fetchOfficeList();
+  }, []);
 
   const validateField = (name, value) => {
     switch (name) {
@@ -72,29 +96,20 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/user/register`, {
-        method: "POST",
+      const response = await axios.post(`${API_BASE_URL}/user/register`, formData, {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
       });
 
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      const result = await response.json();
-      console.log("Registration Response:", result);
-
-      if (result.status === "success") {
+      if (response.data.status === "success") {
         setSuccessMessage("Registration successful! Redirecting to login...");
         setTimeout(() => navigate("/login", { replace: true }), 2000);
       } else {
-        setError(result.message || "Registration failed");
+        setError(response.data.message || "Registration failed.");
       }
-    } catch (error) {
-      console.error("Registration Error:", error);
+    } catch (err) {
+      console.error("Registration Error:", err);
       setError("An error occurred. Please try again.");
     }
   };
@@ -188,9 +203,11 @@ const Register = () => {
               onChange={handleInputChange}
               required
             >
-              <option value="CIT">CIT</option>
-              <option value="YIT">YIT</option>
-              <option value="BTC">BTC</option>
+              {officeList.map((office, index) => (
+                <option key={index} value={office}>
+                  {office}
+                </option>
+              ))}
             </select>
           </div>
           <button

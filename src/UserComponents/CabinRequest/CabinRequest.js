@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import API_BASE_URL from "../Config/Config";
 import axios from "axios";
 import CustomTimePicker from "../TimePicker/CustomTimePicker";
+import { use } from "react";
 
 const CabinRequest = () => {
   const [bookingValidity, setBookingValidity] = useState("single_day");
@@ -15,6 +16,7 @@ const CabinRequest = () => {
   const [selectedCabin, setSelectedCabin] = useState("");
   const [loading, setLoading] = useState(false);
   const [duration, setDuration] = useState("");
+  const[validTime,setValidTime]= useState(false);
  
 
   const getUserData = () => {
@@ -22,8 +24,15 @@ const CabinRequest = () => {
     return storedData ? JSON.parse(storedData) : null;
   };
 
-  useEffect(() => {
-    const fetchCabins = async () => {
+   const fetchCabins = async () => {
+    setSelectedCabin("");
+    setCabins([]);
+  
+    if(!validTime &&  bookingValidity === "single_day")
+        {
+          console.log("Invalid time range");
+          return;
+        }
       if (
         startDate &&
         (bookingValidity === "multiple_day" ? endDate : validFrom && validTill) &&
@@ -38,8 +47,7 @@ const CabinRequest = () => {
           return;
         }
 
-        setLoading(true);
-
+      
         const requestData = {
           token,
           user: userData,
@@ -71,8 +79,10 @@ const CabinRequest = () => {
       }
     };
 
+
+  useEffect(() => {
     fetchCabins();
-  }, [startDate, endDate, validFrom, validTill, purpose, officeId, bookingValidity]);
+  }, [startDate, endDate, validFrom, validTime,validTill, purpose, officeId, bookingValidity]);
 
   const handleCreateBooking = async () => {
     const userData = getUserData();
@@ -85,6 +95,12 @@ const CabinRequest = () => {
 
     if (!selectedCabin) {
       alert("Please select a cabin.");
+      return;
+    }
+
+    if(!validTime &&  bookingValidity === "single_day")
+    {
+      alert("Invalid time range");
       return;
     }
 
@@ -111,6 +127,9 @@ const CabinRequest = () => {
       const response = await axios.post(`${API_BASE_URL}/user/createBooking`, requestData);
       if (response.data.status === "success") {
         alert("Booking created successfully!");
+        setSelectedCabin("");
+        setCabins([]);    
+        setPurpose("");
       } else {
         alert("Failed to create booking: " + response.data.message);
       }
@@ -125,15 +144,9 @@ const CabinRequest = () => {
   const calculateDuration = (startTime, endTime) => {
     const [startHours, startMinutes] = startTime.split(":").map(Number);
     const [endHours, endMinutes] = endTime.split(":").map(Number);
-
-    // Convert both times to minutes since midnight
     const startTotalMinutes = startHours * 60 + startMinutes;
     const endTotalMinutes = endHours * 60 + endMinutes;
-
-    // Calculate the duration in minutes
     const durationMinutes = endTotalMinutes - startTotalMinutes;
-
-    // Convert the duration into hours and minutes
     const hours = Math.floor(durationMinutes / 60);
     const minutes = durationMinutes % 60;
 
@@ -143,6 +156,13 @@ const CabinRequest = () => {
   useEffect(() => {
     const calculatedDuration = calculateDuration(validFrom, validTill);
     setDuration(calculatedDuration);
+    if(validTill <= validFrom )
+    {
+      setValidTime(false);
+    }else{
+      setValidTime(true);
+    }
+
   }, [validFrom, validTill]);
 
 
@@ -199,6 +219,7 @@ const CabinRequest = () => {
               />
             </div>
           )}
+
 {bookingValidity === "single_day" && (
   <>
     <div className="mb-3">
@@ -219,16 +240,15 @@ const CabinRequest = () => {
             setValidTill(time);
           } else {
             alert("End time must be greater than start time.");
-            setValidFrom(""); // Reset start time
-            setDuration("");    // Reset duration
+            setValidTill(time);
           }
         }}
+       
       />
     </div>
     {validFrom && validTill && validTill <= validFrom && (
       <p className="text-danger">End time must be later than start time.</p>
     )}
-
     <div className="mb-3">
       <label className="form-label">Duration</label>
       <input

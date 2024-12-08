@@ -41,7 +41,7 @@ const CustomTimePicker = ({ value, onChange }) => {
   }, [selectedHour, selectedMinute, period]);
 
   const generateOptions = (range) =>
-    Array.from({ length: range }, (_, i) => i);
+    Array.from({ length: range }, (_, i) => (i + 1).toString().padStart(2, "0"));
 
   return (
     <div className="d-flex align-items-center">
@@ -53,9 +53,9 @@ const CustomTimePicker = ({ value, onChange }) => {
         <option value="" disabled>
           hh
         </option>
-        {generateOptions(12).map((hour) => (
-          <option key={hour + 1} value={hour + 1}>
-            {hour + 1}
+        {generateOptions(12).map((hour, index) => (
+          <option key={index} value={Number(hour)}>
+            {hour}
           </option>
         ))}
       </select>
@@ -68,9 +68,9 @@ const CustomTimePicker = ({ value, onChange }) => {
         <option value="" disabled>
           mm
         </option>
-        {generateOptions(60 / 15).map((interval) => (
-          <option key={interval * 15} value={interval * 15}>
-            {interval * 15}
+        {generateOptions(60 / 15).map((interval, index) => (
+          <option key={index} value={index * 15}>
+            {(index * 15).toString().padStart(2, "0")}
           </option>
         ))}
       </select>

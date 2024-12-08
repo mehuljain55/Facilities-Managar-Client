@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, Dropdown, DropdownButton } from 'react-bootstrap';
 import API_BASE_URL from "../Config/Config";
+import './ViewCabinRequest.css'; // Import the CSS file
 
 const ViewCabinRequest = () => {
   const [bookingRequests, setBookingRequests] = useState([]);
@@ -61,74 +62,72 @@ const ViewCabinRequest = () => {
     ? bookingRequests
     : bookingRequests.filter(request => request.status.toLowerCase() === filterStatus.toLowerCase());
 
-    
-
   return (
-    <div className="container mt-5">
+    <div className="view-cabin-request-container container mt-5">
       <h2>Booking Requests</h2>
 
-
-      <DropdownButton
-        id="status-filter-dropdown"
-        title={`Status: ${filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1)}`}
-        className="mb-3"
-        onSelect={(status) => setFilterStatus(status)} // Update filter status when selection changes
-      >
-        <Dropdown.Item eventKey="all">All</Dropdown.Item>
-        <Dropdown.Item eventKey="approved">Approved</Dropdown.Item>
-        <Dropdown.Item eventKey="rejected">Rejected</Dropdown.Item>
-        <Dropdown.Item eventKey="hold">Hold</Dropdown.Item>
-      </DropdownButton>
+      <div className="dropdown-button-container">
+        <DropdownButton
+          id="status-filter-dropdown"
+          title={`Status: ${filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1)}`}
+          onSelect={(status) => setFilterStatus(status)} // Update filter status when selection changes
+        >
+          <Dropdown.Item eventKey="all">All</Dropdown.Item>
+          <Dropdown.Item eventKey="approved">Approved</Dropdown.Item>
+          <Dropdown.Item eventKey="rejected">Rejected</Dropdown.Item>
+          <Dropdown.Item eventKey="hold">Hold</Dropdown.Item>
+        </DropdownButton>
+      </div>
 
       {loading ? (
         <div className="spinner-border text-primary mt-3" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
       ) : (
-        <Table striped bordered hover className="mt-4">
-          <thead>
-            <tr>
-              <th>Request ID</th>
-              <th>Cabin ID</th>
-              <th>User ID</th>
-              <th>Purpose</th>
-              <th>Office ID</th>
-              <th>Start Time</th>
-              <th>End Time</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Booking Validity</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredRequests.length > 0 ? (
-              filteredRequests.map((request) => (
-                <tr key={request.requestId}>
-                  <td>{request.requestId}</td>
-                  <td>{request.cabinId}</td>
-                  <td>{request.userId}</td>
-                  <td>{request.purpose}</td>
-                  <td>{request.officeId}</td>
-                  <td>{formatTo12Hour(request.validFrom)}</td>
-                  <td>{formatTo12Hour(request.validTill)}</td>
-             
-                  <td>{new Date(request.startDate).toLocaleDateString("en-GB")}</td>
-                  <td>{new Date(request.endDate).toLocaleDateString("en-GB")}</td>
-               
-                  <td>{request.bookingValadity}</td>
-                  <td>{request.status}</td>
-                </tr>
-              ))
-            ) : (
+        <div className="table-container">
+          <Table striped bordered hover>
+            <thead>
               <tr>
-                <td colSpan="9" className="text-center">
-                  No booking requests found
-                </td>
+                <th>Request ID</th>
+                <th>Cabin ID</th>
+                <th>User ID</th>
+                <th>Purpose</th>
+                <th>Office ID</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Booking Validity</th>
+                <th>Status</th>
               </tr>
-            )}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {filteredRequests.length > 0 ? (
+                filteredRequests.map((request) => (
+                  <tr key={request.requestId}>
+                    <td>{request.requestId}</td>
+                    <td>{request.cabinId}</td>
+                    <td>{request.userId}</td>
+                    <td>{request.purpose}</td>
+                    <td>{request.officeId}</td>
+                    <td>{formatTo12Hour(request.validFrom)}</td>
+                    <td>{formatTo12Hour(request.validTill)}</td>
+                    <td>{new Date(request.startDate).toLocaleDateString("en-GB")}</td>
+                    <td>{new Date(request.endDate).toLocaleDateString("en-GB")}</td>
+                    <td>{request.bookingValadity}</td>
+                    <td>{request.status}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="11" className="text-center">
+                    No booking requests found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </Table>
+        </div>
       )}
     </div>
   );

@@ -1,0 +1,41 @@
+/* UserManagement.css */
+.user-management-container {
+    margin-top: 50px;
+  }
+  
+  .user-management-container h2 {
+    font-size: 2rem;
+  }
+  
+  .user-management-container .mb-3 {
+    display: flex;
+    align-items: center;
+  }
+  
+  .user-management-container .user-table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 20px;
+  }
+  
+  .user-management-container .table th,
+  .user-management-container .table td {
+    vertical-align: middle;
+  }
+  
+  .user-management-container .table td select {
+    width: 100%;
+  }
+  
+  .user-management-container .alert {
+    margin-top: 20px;
+  }
+  
+  .user-management-container .spinner-border {
+    margin-top: 20px;
+  }
+  
+  .user-management-container button {
+    margin-top: 20px;
+  }
+  

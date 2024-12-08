@@ -1,0 +1,27 @@
+.view-cabin-request-container {
+    margin-top: 50px;
+  }
+  
+  .view-cabin-request-container h2 {
+    font-size: 2rem;
+  }
+  
+  .view-cabin-request-container .dropdown-button-container {
+    margin-bottom: 20px;
+  }
+  
+  .view-cabin-request-container .table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 20px;
+  }
+  
+  .view-cabin-request-container .table th,
+  .view-cabin-request-container .table td {
+    vertical-align: middle;
+  }
+  
+  .view-cabin-request-container .spinner-border {
+    margin-top: 20px;
+  }
+  

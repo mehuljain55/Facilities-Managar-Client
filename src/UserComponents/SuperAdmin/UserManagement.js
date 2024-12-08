@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Table, Button, Form } from "react-bootstrap";
 import API_BASE_URL from "../Config/Config";
+import './UserManagement.css'; // Import the CSS file
 
 const UserManagement = () => {
   const [userList, setUserList] = useState([]);
@@ -124,7 +125,7 @@ const UserManagement = () => {
   };
 
   return (
-    <div className="container mt-5">
+    <div className="user-management-container mt-5">
       <h2>User Manager</h2>
 
       <div className="mb-3 d-flex align-items-center">
@@ -163,85 +164,87 @@ const UserManagement = () => {
           <span className="visually-hidden">Loading...</span>
         </div>
       ) : (
-        <Table striped bordered hover className="mt-4">
-          <thead>
-            <tr>
-              <th>Email Id</th>
-              <th>Name</th>
-              <th>Mobile No</th>
-              <th>
-                Office ID
-                <br />
-                <small>(Dropdown)</small>
-              </th>
-              <th>
-                Role
-                <br />
-                <small>(Dropdown)</small>
-              </th>
-              <th>
-                Status
-                <br />
-                <small>(Dropdown)</small>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {userList.length > 0 ? (
-              userList.map((user, index) => (
-                <tr key={user.emailId}>
-                  <td>{user.emailId}</td>
-                  <td>{user.name}</td>
-                  <td>{user.mobileNo}</td>
-                  <td>
-                    <Form.Select
-                      value={user.officeId}
-                      onChange={(e) =>
-                        handleFieldChange(index, "officeId", e.target.value)
-                      }
-                    >
-                      {officeList.map((office, idx) => (
-                        <option key={idx} value={office}>
-                          {office}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </td>
-                  <td>
-                    <Form.Select
-                      value={user.role}
-                      onChange={(e) =>
-                        handleFieldChange(index, "role", e.target.value)
-                      }
-                    >
-                      <option value="manager">Manager</option>
-                      <option value="user">User</option>
-                    </Form.Select>
-                  </td>
-                  <td>
-                    <Form.Select
-                      value={user.status}
-                      onChange={(e) =>
-                        handleFieldChange(index, "status", e.target.value)
-                      }
-                    >
-                      <option value="ACTIVE">ACTIVE</option>
-                      <option value="NOT_ACTIVE">NOT_ACTIVE</option>
-                      <option value="BLOCKED">BLOCKED</option>
-                      <option value="PENDING">PENDING</option>
-                    </Form.Select>
+        <div className="user-table-container mt-4" style={{ maxHeight: "400px", overflowY: "auto" }}>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Email Id</th>
+                <th>Name</th>
+                <th>Mobile No</th>
+                <th>
+                  Office ID
+                  <br />
+                  <small>(Dropdown)</small>
+                </th>
+                <th>
+                  Role
+                  <br />
+                  <small>(Dropdown)</small>
+                </th>
+                <th>
+                  Status
+                  <br />
+                  <small>(Dropdown)</small>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {userList.length > 0 ? (
+                userList.map((user, index) => (
+                  <tr key={user.emailId}>
+                    <td>{user.emailId}</td>
+                    <td>{user.name}</td>
+                    <td>{user.mobileNo}</td>
+                    <td>
+                      <Form.Select
+                        value={user.officeId}
+                        onChange={(e) =>
+                          handleFieldChange(index, "officeId", e.target.value)
+                        }
+                      >
+                        {officeList.map((office, idx) => (
+                          <option key={idx} value={office}>
+                            {office}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </td>
+                    <td>
+                      <Form.Select
+                        value={user.role}
+                        onChange={(e) =>
+                          handleFieldChange(index, "role", e.target.value)
+                        }
+                      >
+                        <option value="manager">Manager</option>
+                        <option value="user">User</option>
+                      </Form.Select>
+                    </td>
+                    <td>
+                      <Form.Select
+                        value={user.status}
+                        onChange={(e) =>
+                          handleFieldChange(index, "status", e.target.value)
+                        }
+                      >
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="NOT_ACTIVE">NOT_ACTIVE</option>
+                        <option value="BLOCKED">BLOCKED</option>
+                        <option value="PENDING">PENDING</option>
+                      </Form.Select>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="text-center">
+                    No user list found
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" className="text-center">
-                  No user list found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </Table>
+              )}
+            </tbody>
+          </Table>
+        </div>
       )}
 
       <Button className="mt-3" onClick={handleSubmit}>

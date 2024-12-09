@@ -222,7 +222,7 @@ const ApproveVipRequest = () => {
 
   return (
     <div className="container mt-4">
-      <h5 className="mb-4">Approve VIP Request</h5>
+      <h5 className="mb-4">VIP Cabin Booking</h5>
       <Form>
         <Form.Group className="mb-3">
           <Form.Label>Start Date</Form.Label>

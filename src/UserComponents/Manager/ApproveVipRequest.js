@@ -15,14 +15,26 @@ const ApproveVipRequest = () => {
   const [showModal, setShowModal] = useState(false);
   const [userBookingCabins, setUserBookingCabins] = useState([]);
   const [purpose, setPurpose] = useState("");
-  const [availableCabinser, setAvailableCabinUser] = useState([]);
+  const [bookingPurpose, setBookingPurpose] = useState("");
   const [selectedCabinUser, setSelectedCabinUser] = useState("");
+  const [isValidData, setValidData] = useState(false);
+
+
   const initialRender = useRef(true);
 
   const userData = JSON.parse(sessionStorage.getItem("user"));
   const token = sessionStorage.getItem("token");
 
   const handleFetchAvailableCabins = async () => {
+    setSelectedCabin("");
+    setAvailableCabins([]);
+    
+    if(!isValidData)
+    {
+      return;
+    }
+    
+    
     const payload = {
       cabinAvaliableModel: {
         startDate,
@@ -50,12 +62,34 @@ const ApproveVipRequest = () => {
   };
 
   useEffect(() => {
+    if (
+      startDate?.trim() &&
+      validFrom?.trim() &&
+      validTill?.trim() &&
+      officeId?.trim() &&
+      bookingPurpose?.trim() &&
+      vipUserId?.trim()
+    ) {
+      handleFetchAvailableCabins();
+      setValidData(true); 
+    } else {
+      setSelectedCabin("");
+      setAvailableCabins([]); 
+      setValidData(false);
+    }
+  }, [startDate, validFrom, validTill, officeId, bookingPurpose, vipUserId]);
+  
+  useEffect(() => {
     if (initialRender.current) {
       initialRender.current = false;
       return;
     }
     handleViewUserBooking();
   }, [selectedCabin]);
+
+  useEffect(() => {
+    handleFetchAvailableCabins();
+  }, [startDate,validFrom,validTill,vipUserId,officeId]);
 
 
 
@@ -82,7 +116,9 @@ const ApproveVipRequest = () => {
         `${API_BASE_URL}/admin/booking/viewUserCabinBooking`,
         payload
       );
+      
       setUserBooking(response.data.payload?.[0] || null);
+      handleFetchNewCabinList();
       setShowModal(true);
     } catch (error) {
       console.error("Error fetching user booking", error);
@@ -90,11 +126,12 @@ const ApproveVipRequest = () => {
   };
 
   const handleFetchNewCabinList = async () => {
+    
     if (!userBooking) {
-      alert("User booking details are missing.");
       return;
     }
-  
+    setSelectedCabinUser(""); 
+
     const cabinRequestModel = {
       cabinAvaliableModel: {
         startDate: userBooking.date, 
@@ -118,9 +155,6 @@ const ApproveVipRequest = () => {
       cabins = cabins.filter((cabin) => cabin.cabinId !== userBooking.cabinId);
   
       setUserBookingCabins(cabins);
-      if (cabins.length > 0) {
-        setSelectedCabinUser(cabins[0].cabinId); 
-      }
     } catch (error) {
       console.error("Error fetching new cabins for modification", error);
     }
@@ -151,6 +185,7 @@ const ApproveVipRequest = () => {
       cabinRequest: {
         userId:vipUserId,
         cabinId:selectedCabin,
+        purpose:bookingPurpose,
         startDate,
         validFrom,
         validTill,
@@ -167,7 +202,16 @@ const ApproveVipRequest = () => {
       );
       if (response.data.status === "success") {
         alert("Booking processed successfully!");
+        setSelectedCabin("");
+        setAvailableCabins([]);
+        setStartDate("");
+        setValidFrom("");
+        setValidTill("");
+        setVipUserId("");
+        setPurpose("");
+        handleFetchAvailableCabins();
         setShowModal(false);
+
       } else {
         alert("Error processing booking.");
       }
@@ -178,7 +222,7 @@ const ApproveVipRequest = () => {
 
   return (
     <div className="container mt-4">
-      <h2 className="mb-4">Approve VIP Request</h2>
+      <h5 className="mb-4">Approve VIP Request</h5>
       <Form>
         <Form.Group className="mb-3">
           <Form.Label>Start Date</Form.Label>
@@ -215,35 +259,48 @@ const ApproveVipRequest = () => {
             <option value="BTC">BTC</option>
           </Form.Select>
         </Form.Group>
+
         <Form.Group className="mb-3">
-          <Form.Label>VIP Name</Form.Label>
+          <Form.Label>Purpose</Form.Label>
+          <Form.Control
+            type="text"
+            value={bookingPurpose}
+            onChange={(e) => setBookingPurpose(e.target.value)}
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>VIP Email</Form.Label>
           <Form.Control
             type="text"
             value={vipUserId}
             onChange={(e) => setVipUserId(e.target.value)}
           />
         </Form.Group>
-        <Button onClick={handleFetchAvailableCabins}>Fetch Available Cabins</Button>
       </Form>
 
-      {availableCabins.length > 0 && (
-        <div className="mt-4">
-          <h3>Available Cabins</h3>
-          <Form.Select
-            onChange={(e) => setSelectedCabin(e.target.value)}
-            value={selectedCabin}
-          >
-            {availableCabins.map((cabin) => (
-              <option key={cabin.cabinId} value={cabin.cabinId}>
-                {cabin.cabinId} - {cabin.cabinName} - Capacity: {cabin.capacity}
-                <span className={getStatusColor(cabin.status)}>
-                  {" - Status: " + cabin.msg}
-                </span>
-              </option>
-            ))}
-          </Form.Select>
-        </div>
-      )}
+      {isValidData && availableCabins.length > 0 && (
+  <div className="mt-4">
+    <h6>Available Cabins</h6>
+    <Form.Select
+      onChange={(e) => setSelectedCabin(e.target.value)}
+      value={selectedCabin}
+    >
+      <option value="" disabled>
+        Select a Cabin
+      </option>
+      {availableCabins.map((cabin) => (
+        <option key={cabin.cabinId} value={cabin.cabinId}>
+          {cabin.cabinId} - {cabin.cabinName} - Capacity: {cabin.capacity}
+          <span className={getStatusColor(cabin.status)}>
+            {" - Status: " + cabin.msg}
+          </span>
+        </option>
+      ))}
+    </Form.Select>
+  </div>
+)}
+
 
 
 <Modal show={showModal} onHide={() => setShowModal(false)}>
@@ -260,22 +317,26 @@ const ApproveVipRequest = () => {
         <p><strong>Valid Till:</strong> {userBooking.validTill}</p>
 
         <Form.Group className="mt-3">
-          <Form.Label>Action</Form.Label>
-          <Form.Control
-            as="select"
-            onChange={(e) => {
-              const newPurpose = e.target.value;
-              setPurpose(newPurpose);
-              if (newPurpose === "Modify") {
-                handleFetchNewCabinList(); 
-              }
-            }}
-            value={purpose}
-          >
-            <option value="Modify">Modify Booking</option>
-            <option value="Cancel">Cancel Booking</option>
-          </Form.Control>
-        </Form.Group>
+  <Form.Label>Action</Form.Label>
+  <Form.Control
+    as="select"
+    onChange={(e) => {
+      const newPurpose = e.target.value;
+      setPurpose(newPurpose);
+      if (newPurpose === "Modify") {
+        handleFetchNewCabinList();
+      }
+    }}
+    value={purpose}
+  >
+    <option value="" disabled>
+      Select Action
+    </option>
+    <option value="Modify">Modify Booking</option>
+    <option value="Cancel">Cancel Booking</option>
+  </Form.Control>
+</Form.Group>
+
 
         {purpose === "Modify" && userBookingCabins.length > 0 && (
           <Form.Group className="mt-3">
@@ -303,7 +364,7 @@ const ApproveVipRequest = () => {
         )}
       </div>
     ) : (
-      <p>No booking found.</p>
+      <p>No Previous booking found cabin is free to book</p>
     )}
   </Modal.Body>
   <Modal.Footer>
@@ -317,7 +378,7 @@ const ApproveVipRequest = () => {
         }
       }}
     >
-      Submit
+      Book
     </Button>
     <Button variant="secondary" onClick={() => setShowModal(false)}>
       Close

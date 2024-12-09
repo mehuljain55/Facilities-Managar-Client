@@ -7,7 +7,7 @@ const ApproveVipRequest = () => {
   const [startDate, setStartDate] = useState("");
   const [validFrom, setValidFrom] = useState("");
   const [validTill, setValidTill] = useState("");
-  const [officeId, setOfficeId] = useState("YIT");
+  const [officeId, setOfficeId] = useState("");
   const [vipUserId, setVipUserId] = useState("");
   const [availableCabins, setAvailableCabins] = useState([]);
   const [selectedCabin, setSelectedCabin] = useState("");
@@ -18,6 +18,8 @@ const ApproveVipRequest = () => {
   const [bookingPurpose, setBookingPurpose] = useState("");
   const [selectedCabinUser, setSelectedCabinUser] = useState("");
   const [isValidData, setValidData] = useState(false);
+  const [officeList, setOfficeList] = useState([]);
+
 
 
   const initialRender = useRef(true);
@@ -91,6 +93,24 @@ const ApproveVipRequest = () => {
     handleFetchAvailableCabins();
   }, [startDate,validFrom,validTill,vipUserId,officeId]);
 
+
+  useEffect(() => {
+    const fetchOfficeList = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/office/officeList`);
+        if (response.data.status === "success") {
+          setOfficeList(response.data.payload);
+        } else {
+          alert("Failed to load office list.");
+        }
+      } catch (err) {
+        console.error("Error fetching office list:", err);
+       
+      }
+    };
+
+    fetchOfficeList();
+  }, []);
 
 
   const handleViewUserBooking = async () => {
@@ -249,16 +269,22 @@ const ApproveVipRequest = () => {
           />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Office ID</Form.Label>
-          <Form.Select
-            value={officeId}
-            onChange={(e) => setOfficeId(e.target.value)}
-          >
-            <option value="YIT">YIT</option>
-            <option value="CIT">CIT</option>
-            <option value="BTC">BTC</option>
-          </Form.Select>
-        </Form.Group>
+
+      <Form.Label>Office Location</Form.Label>
+      <Form.Select
+        value={officeId}
+        onChange={(e) => setOfficeId(e.target.value)}
+      >
+        <option value="" disabled>
+          Select
+        </option>
+        {officeList.map((office) => (
+          <option key={office} value={office}>
+            {office}
+          </option>
+        ))}
+      </Form.Select>
+    </Form.Group>
 
         <Form.Group className="mb-3">
           <Form.Label>Purpose</Form.Label>

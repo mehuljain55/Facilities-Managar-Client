@@ -1,0 +1,42 @@
+
+.user-management-container {
+  padding: 20px;
+}
+
+.menu-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+}
+
+.role-buttons {
+  display: flex;
+  gap: 10px; 
+}
+
+.office-dropdown-container {
+  display: flex;
+  align-items: center;
+  margin-left: auto; 
+}
+
+.custom-dropdown {
+  height: 38px;
+  margin-left: 5px; 
+}
+
+.user-table-container {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 20px;
+}
+
+.update-button {
+  width: 150px;
+  padding: 10px;
+}
+
+.office-dropdown-container label {
+  font-weight: bold;
+  font-size: 1rem;
+}

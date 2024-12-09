@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Table, Dropdown, DropdownButton } from "react-bootstrap";
+import { Table, Dropdown, DropdownButton, Button } from "react-bootstrap";
 import API_BASE_URL from "../Config/Config";
 
 const ViewAllCabinRequest = ({ preselectedStatus }) => {
@@ -26,7 +26,7 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
     const bookingRequest = {
       token: token,
       user: user,
-      status: selectedStatus 
+      status: selectedStatus,
     };
 
     try {
@@ -43,7 +43,46 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
     setLoading(false);
   };
 
-  // Fetch data when the component mounts or when `selectedStatus` changes
+  const formatTo12Hour = (time) => {
+    if (!time) return ""; 
+
+    const [hours, minutes] = time.split(":");
+    const date = new Date();
+    date.setHours(hours, minutes);
+
+    return new Intl.DateTimeFormat("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).format(date);
+  };
+
+  const exportToExcel = async () => {
+    try {
+
+      if(bookingRequests.length===0)
+      {
+        alert("Nothing to export");
+        return;
+      }
+
+      const response = await axios.post(`${API_BASE_URL}/export/excel`, bookingRequests, {
+        responseType: "blob", // Ensure we get binary data
+      });
+
+      // Create a download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "cabin_requests.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (err) {
+      setError("Failed to export data to Excel");
+    }
+  };
+
   useEffect(() => {
     fetchBookingRequests();
   }, [selectedStatus]);
@@ -54,7 +93,6 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
 
       {error && <div className="alert alert-danger mt-3">{error}</div>}
 
-      
       <DropdownButton
         id="dropdown-status"
         title={`Status: ${selectedStatus}`}
@@ -67,22 +105,27 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
         <Dropdown.Item eventKey="hold">Hold</Dropdown.Item>
       </DropdownButton>
 
+     
+
       {loading ? (
         <div className="spinner-border text-primary mt-3" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
       ) : (
-        <Table striped bordered hover className="mt-4">
+        <div className="cabin-request-view-table-container mt-4" style={{ maxHeight: "400px", overflowY: "auto" }}>
+       
+     <Table striped bordered hover className="mt-4">
           <thead>
             <tr>
               <th>Request ID</th>
               <th>Cabin ID</th>
+              <th>Cabin Name</th>
+           
               <th>User ID</th>
               <th>Purpose</th>
               <th>Office ID</th>
               <th>Valid From</th>
               <th>Valid Till</th>
-              
               <th>Start Date</th>
               <th>End Date</th>
               <th>Booking Validity</th>
@@ -95,16 +138,15 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
                 <tr key={request.requestId}>
                   <td>{request.requestId}</td>
                   <td>{request.cabinId}</td>
+                  <td>{request.cabinName}</td>
+             
                   <td>{request.userId}</td>
                   <td>{request.purpose}</td>
                   <td>{request.officeId}</td>
-                  <td>{request.validFrom}</td>
-                  <td>{request.validTill}</td>
-
+                  <td>{formatTo12Hour(request.validFrom)}</td>
+                  <td>{formatTo12Hour(request.validTill)}</td>
                   <td>{new Date(request.startDate).toLocaleDateString("en-GB")}</td>
                   <td>{new Date(request.endDate).toLocaleDateString("en-GB")}</td>
-
-
                   <td>{request.bookingValadity}</td>
                   <td>{request.status}</td>
                 </tr>
@@ -118,7 +160,13 @@ const ViewAllCabinRequest = ({ preselectedStatus }) => {
             )}
           </tbody>
         </Table>
+        </div>
+        
       )}
+     <Button onClick={exportToExcel} className="btn btn-primary mt-3 d-flex justify-content-center mx-auto">
+  Export
+</Button>
+
     </div>
   );
 };

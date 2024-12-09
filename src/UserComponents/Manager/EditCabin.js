@@ -4,10 +4,65 @@ import API_BASE_URL from "../Config/Config";
 
 const EditCabin = () => {
   const [cabins, setCabins] = useState([]);
-  const [updatedCabins, setUpdatedCabins] = useState([]);
+
 
   useEffect(() => {
-  const fetchData = async () => {
+    const fetchData = async () => {
+      const user = JSON.parse(sessionStorage.getItem("user"));
+      const token = sessionStorage.getItem("token");
+
+      if (!user || !token) {
+        alert("User not authenticated");
+        return;
+      }
+
+      const userRequest = {
+        token: token,
+        user: user,
+      };
+
+      try {
+        const response = await axios.post(
+          `${API_BASE_URL}/manager/findAllCabinByOffice`,
+          userRequest,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.data.status === "success") {
+          setCabins(response.data.payload);
+          console.log(response.data.payload);
+        } else {
+          alert("Failed to fetch cabin list");
+        }
+      } catch (err) {
+        alert("Error fetching cabin list");
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleInputChange = (e, cabinId, field) => {
+    const value = e.target.value;
+    setCabins((prevCabins) =>
+      prevCabins.map((cabin) => {
+        if (cabin.cabinId === cabinId) {
+          if (field === "bookingType" && value === "multiple_day") {
+            return { ...cabin, [field]: value, status: "Available" };
+          } else {
+            return { ...cabin, [field]: value };
+          }
+        }
+        return cabin;
+      })
+    );
+  };
+
+  
+  const handleSubmit = async () => {
     const user = JSON.parse(sessionStorage.getItem("user"));
     const token = sessionStorage.getItem("token");
 
@@ -19,62 +74,8 @@ const EditCabin = () => {
     const userRequest = {
       token: token,
       user: user,
+      cabin: cabins, // Send the entire updated cabins array
     };
-
-    try {
-      const response = await axios.post(
-        `${API_BASE_URL}/manager/findAllCabinByOffice`,
-        userRequest,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.data.status === "success") {
-        setCabins(response.data.payload);
-      } else {
-        alert("Failed to fetch cabin list");
-      }
-    } catch (err) {
-      alert("Error fetching cabin list");
-    }
-  };
-
-  fetchData();
-}, []); 
-
-  const handleInputChange = (e, cabinId, field) => {
-    const value = e.target.value;
-    setCabins(prevCabins =>
-      prevCabins.map(cabin =>
-        cabin.cabinId === cabinId ? { ...cabin, [field]: value } : cabin
-      )
-    );
-
-    setUpdatedCabins(prevUpdatedCabins => {
-      const existingCabin = prevUpdatedCabins.find(c => c.cabinId === cabinId);
-      if (existingCabin) {
-        return prevUpdatedCabins.map(c =>
-          c.cabinId === cabinId ? { ...c, [field]: value } : c
-        );
-      } else {
-        const updatedCabin = cabins.find(c => c.cabinId === cabinId);
-        return [...prevUpdatedCabins, { ...updatedCabin, [field]: value }];
-      }
-    });
-  };
-
-  const handleSubmit = async () => {
-    const user = JSON.parse(sessionStorage.getItem("user"));
-    const token = sessionStorage.getItem("token");
-
-    const userRequest = {
-      token: token,
-      user: user,
-      cabin:updatedCabins
-    };
-
 
     try {
       const response = await axios.post(
@@ -88,12 +89,12 @@ const EditCabin = () => {
       );
       console.log(response);
       if (response.data.status === "success") {
-       alert("Cabins updated");
+        alert("Cabins updated successfully!");
       } else {
-        alert("Failed to update cabin");
+        alert("Failed to update cabins");
       }
     } catch (err) {
-      alert("Error updating cabin",err);
+      alert("Error updating cabins");
       console.log(err);
     }
   };
@@ -107,10 +108,12 @@ const EditCabin = () => {
             <th>Cabin ID</th>
             <th>Cabin Name</th>
             <th>Capacity</th>
+            <th>Booking Type</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
-          {cabins.map(cabin => (
+          {cabins.map((cabin) => (
             <tr key={cabin.cabinId}>
               <td>{cabin.cabinId}</td>
               <td>
@@ -118,7 +121,9 @@ const EditCabin = () => {
                   type="text"
                   className="form-control"
                   value={cabin.cabinName}
-                  onChange={e => handleInputChange(e, cabin.cabinId, "cabinName")}
+                  onChange={(e) =>
+                    handleInputChange(e, cabin.cabinId, "cabinName")
+                  }
                 />
               </td>
               <td>
@@ -126,14 +131,43 @@ const EditCabin = () => {
                   type="number"
                   className="form-control"
                   value={cabin.capacity}
-                  onChange={e => handleInputChange(e, cabin.cabinId, "capacity")}
+                  onChange={(e) =>
+                    handleInputChange(e, cabin.cabinId, "capacity")
+                  }
                 />
+              </td>
+              <td>
+                <select
+                  className="form-control"
+                  value={cabin.bookingType}
+                  onChange={(e) =>
+                    handleInputChange(e, cabin.cabinId, "bookingType")
+                  }
+                >
+                  <option value="single_day">Single Day</option>
+                  <option value="multiple_day">Multiple Day</option>
+                </select>
+              </td>
+              <td>
+                <select
+                  className="form-control"
+                  value={cabin.status}
+                  onChange={(e) =>
+                    handleInputChange(e, cabin.cabinId, "status")
+                  }
+                  disabled={cabin.bookingType === "multiple_day"}
+                >
+                  <option value="Available">Available</option>
+                  <option value="Reserved">Reserved</option>
+                </select>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <button className="btn btn-primary" onClick={handleSubmit}>Submit Changes</button>
+      <button className="btn btn-primary" onClick={handleSubmit}>
+        Submit Changes
+      </button>
     </div>
   );
 };

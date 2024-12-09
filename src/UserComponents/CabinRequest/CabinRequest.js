@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import API_BASE_URL from "../Config/Config";
 import axios from "axios";
+import CustomTimePicker from "../TimePicker/CustomTimePicker";
+
 
 const CabinRequest = () => {
   const [bookingValidity, setBookingValidity] = useState("single_day");
@@ -13,14 +15,24 @@ const CabinRequest = () => {
   const [cabins, setCabins] = useState([]);
   const [selectedCabin, setSelectedCabin] = useState("");
   const [loading, setLoading] = useState(false);
+  const [duration, setDuration] = useState("");
+  const[validTime,setValidTime]= useState(false);
+ 
 
   const getUserData = () => {
     const storedData = sessionStorage.getItem("user");
     return storedData ? JSON.parse(storedData) : null;
   };
 
-  useEffect(() => {
-    const fetchCabins = async () => {
+   const fetchCabins = async () => {
+    setSelectedCabin("");
+    setCabins([]);
+  
+    if(!validTime &&  bookingValidity === "single_day")
+        {
+          console.log("Invalid time range");
+          return;
+        }
       if (
         startDate &&
         (bookingValidity === "multiple_day" ? endDate : validFrom && validTill) &&
@@ -35,8 +47,7 @@ const CabinRequest = () => {
           return;
         }
 
-        setLoading(true);
-
+      
         const requestData = {
           token,
           user: userData,
@@ -68,8 +79,10 @@ const CabinRequest = () => {
       }
     };
 
+
+  useEffect(() => {
     fetchCabins();
-  }, [startDate, endDate, validFrom, validTill, purpose, officeId, bookingValidity]);
+  }, [startDate, endDate, validFrom, validTime,validTill, purpose, officeId, bookingValidity]);
 
   const handleCreateBooking = async () => {
     const userData = getUserData();
@@ -82,6 +95,12 @@ const CabinRequest = () => {
 
     if (!selectedCabin) {
       alert("Please select a cabin.");
+      return;
+    }
+
+    if(!validTime &&  bookingValidity === "single_day")
+    {
+      alert("Invalid time range");
       return;
     }
 
@@ -108,6 +127,9 @@ const CabinRequest = () => {
       const response = await axios.post(`${API_BASE_URL}/user/createBooking`, requestData);
       if (response.data.status === "success") {
         alert("Booking created successfully!");
+        setSelectedCabin("");
+        setCabins([]);    
+        setPurpose("");
       } else {
         alert("Failed to create booking: " + response.data.message);
       }
@@ -116,6 +138,34 @@ const CabinRequest = () => {
       alert("An error occurred while creating the booking.");
     }
   };
+
+ 
+
+  const calculateDuration = (startTime, endTime) => {
+    const [startHours, startMinutes] = startTime.split(":").map(Number);
+    const [endHours, endMinutes] = endTime.split(":").map(Number);
+    const startTotalMinutes = startHours * 60 + startMinutes;
+    const endTotalMinutes = endHours * 60 + endMinutes;
+    const durationMinutes = endTotalMinutes - startTotalMinutes;
+    const hours = Math.floor(durationMinutes / 60);
+    const minutes = durationMinutes % 60;
+
+    return `${hours} hours ${minutes} minutes`;
+  };
+
+  useEffect(() => {
+    const calculatedDuration = calculateDuration(validFrom, validTill);
+    setDuration(calculatedDuration);
+    if(validTill <= validFrom )
+    {
+      setValidTime(false);
+    }else{
+      setValidTime(true);
+    }
+
+  }, [validFrom, validTill]);
+
+
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -129,6 +179,7 @@ const CabinRequest = () => {
         return "";
     }
   };
+
 
   return (
     <div className="container mt-5">
@@ -169,28 +220,47 @@ const CabinRequest = () => {
             </div>
           )}
 
-          {bookingValidity === "single_day" && (
-            <>
-              <div className="mb-3">
-                <label className="form-label">Valid From</label>
-                <input
-                  type="time"
-                  className="form-control"
-                  value={validFrom}
-                  onChange={(e) => setValidFrom(e.target.value)}
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Valid Till</label>
-                <input
-                  type="time"
-                  className="form-control"
-                  value={validTill}
-                  onChange={(e) => setValidTill(e.target.value)}
-                />
-              </div>
-            </>
-          )}
+{bookingValidity === "single_day" && (
+  <>
+    <div className="mb-3">
+      <label className="form-label">Start Time</label>
+      <CustomTimePicker
+        value={validFrom}
+        onChange={(time) => {
+          setValidFrom(time);
+        }}
+      />
+    </div>
+    <div className="mb-3">
+      <label className="form-label">End Time</label>
+      <CustomTimePicker
+        value={validTill}
+        onChange={(time) => {
+          if (validFrom && time > validFrom) {
+            setValidTill(time);
+          } else {
+            alert("End time must be greater than start time.");
+            setValidTill(time);
+          }
+        }}
+       
+      />
+    </div>
+    {validFrom && validTill && validTill <= validFrom && (
+      <p className="text-danger">End time must be later than start time.</p>
+    )}
+    <div className="mb-3">
+      <label className="form-label">Duration</label>
+      <input
+        type="text"
+        className="form-control"
+        value={duration}
+        placeholder="Enter booking purpose"
+      />
+    </div>
+  </>
+)}
+
 
           <div className="mb-3">
             <label className="form-label">Purpose</label>
@@ -232,7 +302,8 @@ const CabinRequest = () => {
                   <option
                     key={cabin.cabinId}
                     value={cabin.cabinId}
-                    disabled={cabin.status === "Booked"}
+                    disabled={cabin.status === "Booked" || cabin.status === "Reserved"}
+
                   >
                     {cabin.cabinName} - Capacity: {cabin.capacity} 
                     <span className={getStatusColor(cabin.status)}>

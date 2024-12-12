@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+
+﻿import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import API_BASE_URL from "../Config/Config";
 import "bootstrap/dist/css/bootstrap.min.css";
 import YashLogo from "../Image/yash.jpg";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import eye icons
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -14,8 +16,8 @@ const Register = () => {
     password: "",
     officeId: "",
   });
-  const [officeList, setOfficeList] = useState([]); // State for storing office list
-  const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
+  const [officeList, setOfficeList] = useState([]); 
+  const [showPassword, setShowPassword] = useState(false); 
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [validationErrors, setValidationErrors] = useState({
@@ -24,6 +26,7 @@ const Register = () => {
     emailId: "",
   });
   const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchOfficeList = async () => {
@@ -44,8 +47,10 @@ const Register = () => {
       }
     };
 
+
     fetchOfficeList();
   }, []);
+
 
   const validateField = (name, value) => {
     switch (name) {
@@ -67,11 +72,15 @@ const Register = () => {
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
           return "Please enter a valid email address.";
         }
+        if (!value.endsWith("@yash.com")) {
+          return "Email must belong to the yash.com.";
+        }
         return "";
       default:
         return "";
     }
   };
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -81,13 +90,16 @@ const Register = () => {
       [name]: errorMessage,
     }));
 
+
     setFormData({ ...formData, [name]: value });
   };
+
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
+
 
     const errors = Object.values(validationErrors).filter((msg) => msg !== "");
     if (errors.length > 0) {
@@ -95,12 +107,14 @@ const Register = () => {
       return;
     }
 
+
     try {
       const response = await axios.post(`${API_BASE_URL}/user/register`, formData, {
         headers: {
           "Content-Type": "application/json",
         },
       });
+
 
       if (response.data.status === "success") {
         setSuccessMessage("Registration successful! Redirecting to login...");
@@ -113,6 +127,7 @@ const Register = () => {
       setError("An error occurred. Please try again.");
     }
   };
+
 
   return (
     <div
@@ -240,5 +255,6 @@ const Register = () => {
     </div>
   );
 };
+
 
 export default Register;

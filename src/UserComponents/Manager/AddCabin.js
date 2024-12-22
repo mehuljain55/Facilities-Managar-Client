@@ -8,6 +8,7 @@ const AddCabin = () => {
     cabinName: '',
     capacity: '',
     bookingType: '',
+    appliances:'',
     status: 'Select Status',
   });
   const [error, setError] = useState('');
@@ -43,6 +44,7 @@ const AddCabin = () => {
         cabin.cabinName === newCabin.cabinName &&
         cabin.capacity === newCabin.capacity &&
         cabin.bookingType === newCabin.bookingType &&
+        cabin.bookingType === newCabin.appliances &&
         cabin.status === newCabin.status
     );
 
@@ -52,6 +54,7 @@ const AddCabin = () => {
         cabinName: '',
         capacity: '',
         bookingType: '',
+        appliances:'',
         status: 'Select Status',
       });
       setError('');
@@ -69,6 +72,7 @@ const AddCabin = () => {
         cabin.cabinName &&
         cabin.capacity &&
         cabin.bookingType &&
+        cabin.appliances &&
         cabin.status !== 'Select Status'
     );
 
@@ -111,6 +115,7 @@ const AddCabin = () => {
             <th>Cabin Name</th>
             <th>Capacity</th>
             <th>Booking Type</th>
+            <th>Appliance</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
@@ -148,6 +153,9 @@ const AddCabin = () => {
                   <option value="multiple_day">Multiple Day</option>
                 </select>
               </td>
+            
+            
+
               <td>
                 <select
                   name="status"
@@ -203,7 +211,20 @@ const AddCabin = () => {
                 <option value="multiple_day">Multiple Day</option>
               </select>
             </td>
+
             <td>
+              <input
+                type="text"
+                name="appliances"
+                value={newCabin.appliances}
+                onChange={(e) => handleInputChange(e)}
+                className="form-control"
+                placeholder="Appliances"
+                onBlur={handleAutoAddRow}
+              />
+            </td>
+            <td>
+              
               <select
                 name="status"
                 value={newCabin.status}

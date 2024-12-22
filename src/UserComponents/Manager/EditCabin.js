@@ -109,6 +109,8 @@ const EditCabin = () => {
             <th>Cabin Name</th>
             <th>Capacity</th>
             <th>Booking Type</th>
+            <th>Appliances</th>
+         
             <th>Status</th>
           </tr>
         </thead>
@@ -149,6 +151,17 @@ const EditCabin = () => {
                 </select>
               </td>
               <td>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={cabin.appliances}
+                  onChange={(e) =>
+                    handleInputChange(e, cabin.cabinId, "appliances")
+                  }
+                />
+              </td>
+              <td>
+                
                 <select
                   className="form-control"
                   value={cabin.status}

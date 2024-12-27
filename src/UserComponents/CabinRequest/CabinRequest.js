@@ -338,8 +338,10 @@ const CabinRequest = () => {
               type="text"
               id="appliances"
               className="form-control"
+              placeholder="Select the cabin"
               value={selectedCabinData}
-              readOnly
+              disabled={true}
+              
             />
           </div>
   

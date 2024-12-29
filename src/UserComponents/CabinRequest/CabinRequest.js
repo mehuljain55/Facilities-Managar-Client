@@ -308,29 +308,32 @@ const CabinRequest = () => {
           </div>
   
           <div className="mb-3">
-            <label className="form-label">Select Cabin</label>
-            {loading ? (
-              <p>Loading cabins...</p>
-            ) : (
-              <select
-                className="form-select"
-                value={selectedCabin}
-                onChange={handleCabinChange}
-                disabled={cabins.length === 0}
-              >
-                <option value="">Select a Cabin</option>
-                {cabins.map((cabin) => (
-                  <option
-                    key={cabin.cabinId}
-                    value={cabin.cabinId}
-                    disabled={cabin.status === "Booked" || cabin.status === "Reserved"}
-                  >
-                    {cabin.cabinName} - Capacity: {cabin.capacity} - Status: {cabin.status}
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
+  <label className="form-label">Select Cabin</label>
+  {loading ? (
+    <p>Loading cabins...</p>
+  ) : (
+    <select
+      className="form-select"
+      value={selectedCabin}
+      onChange={handleCabinChange}
+      disabled={cabins.length === 0}
+    >
+      <option value="">Select a Cabin</option>
+      {cabins
+        .filter(cabin => cabin.status !== "Reserved") // Filter out "Reserved" cabins
+        .map((cabin) => (
+          <option
+            key={cabin.cabinId}
+            value={cabin.cabinId}
+            disabled={cabin.status === "Booked"}
+          >
+            {cabin.cabinName} - Capacity: {cabin.capacity} - Status: {cabin.status}
+          </option>
+        ))}
+    </select>
+  )}
+</div>
+
   
           <div className="mt-3">
             <label htmlFor="appliances" className="form-label">Appliances</label>

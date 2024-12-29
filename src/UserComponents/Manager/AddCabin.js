@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import axios from 'axios';
+import * as XLSX from 'xlsx';
 import API_BASE_URL from '../Config/Config';
 
 const AddCabin = () => {
@@ -12,6 +13,8 @@ const AddCabin = () => {
     status: 'Select Status',
   });
   const [error, setError] = useState('');
+  const [file, setFile] = useState(null); // Uploaded file
+  const fileInputRef = useRef(null); // Ref for file input
 
   const handleInputChange = (e, index = null) => {
     const { name, value } = e.target;
@@ -90,6 +93,63 @@ const AddCabin = () => {
     }
 };
 
+  // Handle File Upload
+  const handleFileUpload = (event) => {
+    const uploadedFile = event.target.files[0];
+    if (!uploadedFile) return;
+  
+    setFile(uploadedFile); // Save file to state
+    const reader = new FileReader();
+  
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(sheet);
+  
+      // Process and validate data
+      const processedData = jsonData.map((row) => {
+        const bookingType =
+          row["Booking Validity"]?.toLowerCase().includes("single")
+            ? "single_day"
+            : row["Booking Validity"]?.toLowerCase().includes("multiple")
+            ? "multiple_day"
+            : "";
+  
+        const status =
+          bookingType === "multiple_day" &&
+          row["Status"]?.toLowerCase() === "reserved"
+            ? "Select Status"
+            : row["Status"];
+  
+        return {
+          cabinName: row["Cabin Name"] || "",
+          capacity: row["Capacity"] || "",
+          appliances: row["Appliances"] || "",
+          bookingType,
+          status,
+        };
+      });
+  
+      // Append the new cabins to the existing cabins list (instead of replacing it)
+      setCabins((prevCabins) => [...prevCabins, ...processedData]);
+    };
+  
+    reader.readAsArrayBuffer(uploadedFile);
+    setFile(null); // Clear file
+  };
+  
+
+  // Handle Clear
+  const handleClear = () => {
+    setFile(null); // Clear file
+    setCabins([]); // Clear cabin data
+    setError(""); // Clear errors
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null; // Reset file input
+    }
+  };
 
   const handleSubmit = () => {
     const validCabins = cabins.filter(
@@ -131,10 +191,35 @@ const AddCabin = () => {
   return (
     <div className="container">
       <h2 className="my-4">Create Cabins</h2>
+    
+    
+      <div className="d-flex justify-content-end mb-3">
+    
+      <button c className="btn btn-primary me-2" onClick={handleDownload}>
+          Download
+        </button>
 
-      <div>
-            <button onClick={handleDownload}>Download Excel</button>
-        </div>
+        <button
+          className="btn btn-primary me-2"
+          onClick={() => fileInputRef.current && fileInputRef.current.click()}
+          disabled={!!file} // Disable if file is already uploaded
+        >
+          Upload
+        </button>
+       
+          <button className="btn btn-secondary me-2" onClick={handleClear}>
+            Clear
+          </button>
+        
+      </div>
+
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }} // Hide the input
+        onChange={handleFileUpload}
+        accept=".xlsx,.xls,.csv" // Restrict file types
+      />
 
       {error && <div className="alert alert-danger">{error}</div>}
 
@@ -182,7 +267,6 @@ const AddCabin = () => {
                   <option value="multiple_day">Multiple Day</option>
                 </select>
               </td>
-            
               <td>
                 <input
                   type="text"
@@ -192,7 +276,6 @@ const AddCabin = () => {
                   className="form-control"
                 />
               </td>
-
               <td>
                 <select
                   name="status"
@@ -202,11 +285,14 @@ const AddCabin = () => {
                 >
                   <option value="Select Status">Select Status</option>
                   <option value="Available">Available</option>
-                  {cabin.bookingType === 'single_day' && <option value="Reserved">Reserved</option>}
+                  {cabin.bookingType === "single_day" && <option value="Reserved">Reserved</option>}
                 </select>
               </td>
               <td>
-                <button className="btn btn-danger" onClick={() => handleRemoveRow(index)}>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => handleRemoveRow(index)}
+                >
                   Remove
                 </button>
               </td>
@@ -248,7 +334,6 @@ const AddCabin = () => {
                 <option value="multiple_day">Multiple Day</option>
               </select>
             </td>
-
             <td>
               <input
                 type="text"
@@ -261,7 +346,6 @@ const AddCabin = () => {
               />
             </td>
             <td>
-              
               <select
                 name="status"
                 value={newCabin.status}
@@ -271,7 +355,7 @@ const AddCabin = () => {
               >
                 <option value="Select Status">Select Status</option>
                 <option value="Available">Available</option>
-                {newCabin.bookingType === 'single_day' && <option value="Reserved">Reserved</option>}
+                {newCabin.bookingType === "single_day" && <option value="Reserved">Reserved</option>}
               </select>
             </td>
           </tr>

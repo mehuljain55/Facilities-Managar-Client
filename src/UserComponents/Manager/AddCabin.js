@@ -66,6 +66,31 @@ const AddCabin = () => {
     setCabins(updatedCabins);
   };
 
+  const handleDownload = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/cabin/download/format`, {
+            method: 'GET',
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to download file');
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Cabin Details.xlsx';
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Error downloading the file:', error);
+    }
+};
+
+
   const handleSubmit = () => {
     const validCabins = cabins.filter(
       (cabin) =>
@@ -95,7 +120,7 @@ const AddCabin = () => {
       .then((response) => {
         console.log('Cabins added successfully:', response);
         alert('Cabins added successfully!');
-        setCabins([]); // Clear cabins after submission
+        setCabins([]);
       })
       .catch((error) => {
         console.error('Error adding cabins:', error);
@@ -106,6 +131,10 @@ const AddCabin = () => {
   return (
     <div className="container">
       <h2 className="my-4">Create Cabins</h2>
+
+      <div>
+            <button onClick={handleDownload}>Download Excel</button>
+        </div>
 
       {error && <div className="alert alert-danger">{error}</div>}
 
@@ -154,7 +183,15 @@ const AddCabin = () => {
                 </select>
               </td>
             
-            
+              <td>
+                <input
+                  type="text"
+                  name="appliances"
+                  value={cabin.appliances}
+                  onChange={(e) => handleInputChange(e, index)}
+                  className="form-control"
+                />
+              </td>
 
               <td>
                 <select

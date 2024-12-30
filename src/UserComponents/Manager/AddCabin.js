@@ -13,9 +13,8 @@ const AddCabin = () => {
     status: 'Select Status',
   });
   const [error, setError] = useState('');
-  const [file, setFile] = useState(null); // Uploaded file
-  const fileInputRef = useRef(null); // Ref for file input
-
+  const [file, setFile] = useState(null); 
+  const fileInputRef = useRef(null);
   const handleInputChange = (e, index = null) => {
     const { name, value } = e.target;
 
@@ -93,12 +92,12 @@ const AddCabin = () => {
     }
 };
 
-  // Handle File Upload
+
   const handleFileUpload = (event) => {
     const uploadedFile = event.target.files[0];
     if (!uploadedFile) return;
   
-    setFile(uploadedFile); // Save file to state
+    setFile(uploadedFile);
     const reader = new FileReader();
   
     reader.onload = (e) => {
@@ -108,7 +107,7 @@ const AddCabin = () => {
       const sheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(sheet);
   
-      // Process and validate data
+
       const processedData = jsonData.map((row) => {
         const bookingType =
           row["Booking Validity"]?.toLowerCase().includes("single")
@@ -132,22 +131,24 @@ const AddCabin = () => {
         };
       });
   
-      // Append the new cabins to the existing cabins list (instead of replacing it)
       setCabins((prevCabins) => [...prevCabins, ...processedData]);
     };
   
     reader.readAsArrayBuffer(uploadedFile);
-    setFile(null); // Clear file
+    setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null;
+    }
   };
   
 
-  // Handle Clear
+  // Handle Clear all data
   const handleClear = () => {
     setFile(null); // Clear file
     setCabins([]); // Clear cabin data
     setError(""); // Clear errors
     if (fileInputRef.current) {
-      fileInputRef.current.value = null; // Reset file input
+      fileInputRef.current.value = null;
     }
   };
 
@@ -202,7 +203,7 @@ const AddCabin = () => {
         <button
           className="btn btn-primary me-2"
           onClick={() => fileInputRef.current && fileInputRef.current.click()}
-          disabled={!!file} // Disable if file is already uploaded
+          disabled={!!file}
         >
           Upload
         </button>
@@ -216,7 +217,7 @@ const AddCabin = () => {
       <input
         type="file"
         ref={fileInputRef}
-        style={{ display: 'none' }} // Hide the input
+        style={{ display: 'none' }} 
         onChange={handleFileUpload}
         accept=".xlsx,.xls,.csv" // Restrict file types
       />

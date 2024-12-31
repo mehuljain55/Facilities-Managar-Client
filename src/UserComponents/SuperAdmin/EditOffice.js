@@ -68,13 +68,7 @@ const EditCabin = () => {
           },
         }
       );
-      console.log(response);
-      if (response.data.status === "success") {
-        alert("Office updated successfully!");
-      } else {
-        alert("Failed to update office");
-      
-      }
+      alert(response.data.message);
     } catch (err) {
       alert("Error updating office");
       console.log(err);

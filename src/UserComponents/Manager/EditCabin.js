@@ -147,7 +147,6 @@ const EditCabin = () => {
             <th>Capacity</th>
             <th>Booking Type</th>
             <th>Appliances</th>
-         
             <th>Status</th>
             <th>Action</th>
           </tr>

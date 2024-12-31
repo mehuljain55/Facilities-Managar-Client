@@ -189,21 +189,6 @@ const CabinRequest = () => {
   }, [validFrom, validTill]);
 
 
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Booked":
-        return "text-danger"; // Red color for Booked
-      case "Requested":
-        return "text-warning"; // Yellow for requested
-      case "Avaliable":
-        return "text-success"; // Green for available
-      default:
-        return "";
-    }
-  };
-
-
   return (
     <div className="container mt-5">
       <h3 className="text-center mb-4">Cabin Booking</h3>

@@ -41,6 +41,7 @@ const EditCabin = () => {
     }
   };
 
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -61,44 +62,7 @@ const EditCabin = () => {
     );
   };
 
-  const handleDelete = async (cabinId) => {
-    const user = JSON.parse(sessionStorage.getItem("user"));
-    const token = sessionStorage.getItem("token");
   
-    if (!user || !token) {
-      alert("User not authenticated");
-      return;
-    }
-  
-    const userRequest = {
-      token: token,
-      user: user,
-      cabinId: cabinId,
-    };
-  
-    try {
-      const response = await axios.post(
-        `${API_BASE_URL}/cabin/deleteCabin`,
-        userRequest,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.data.status === "success") {
-        alert("Cabin deleted successfully!");
-     
-      } else {
-        alert("Failed to delete cabin");
-      }
-    } catch (err) {
-      alert("Error deleting cabin");
-      console.log(err);
-    }finally{
-      fetchData(); 
-    }
-  };
   const handleSubmit = async () => {
     const user = JSON.parse(sessionStorage.getItem("user"));
     const token = sessionStorage.getItem("token");
@@ -147,8 +111,8 @@ const EditCabin = () => {
             <th>Capacity</th>
             <th>Booking Type</th>
             <th>Appliances</th>
+         
             <th>Status</th>
-            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -211,14 +175,7 @@ const EditCabin = () => {
                   <option value="Reserved">Reserved</option>
                 </select>
               </td>
-              <td>
-  <button
-    className="btn btn-danger"
-    onClick={() => handleDelete(cabin.cabinId)} // Wrapped in an arrow function
-  >
-    Delete
-  </button>
-</td>            </tr>
+            </tr>
           ))}
         </tbody>
       </table>

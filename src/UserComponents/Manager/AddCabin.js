@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from 'axios';
 import * as XLSX from 'xlsx';
+import Fuse from 'fuse.js'; // Import fuse.js for fuzzy searching
 import API_BASE_URL from '../Config/Config';
 
 const AddCabin = () => {
@@ -10,11 +11,14 @@ const AddCabin = () => {
     capacity: '',
     bookingType: '',
     appliances:'',
-    status: 'Select Status',
+    status: '',
   });
   const [error, setError] = useState('');
+  const [validationErrors, setValidationErrors] = useState([]);
   const [file, setFile] = useState(null); 
   const fileInputRef = useRef(null);
+  const VALID_STATUSES = ['Available', 'Reserved'];
+
   const handleInputChange = (e, index = null) => {
     const { name, value } = e.target;
 
@@ -31,36 +35,32 @@ const AddCabin = () => {
     }
   };
 
-  const handleAutoAddRow = () => {
-    if (
-      !newCabin.cabinName ||
-      !newCabin.capacity ||
-      !newCabin.bookingType ||
-      newCabin.status === 'Select Status'
-    ) {
-      return; 
-    }
+  useEffect(() => {
+    handleAddRow();
+  }, []);
 
-    const isRowExist = cabins.some(
-      (cabin) =>
-        cabin.cabinName === newCabin.cabinName &&
-        cabin.capacity === newCabin.capacity &&
-        cabin.bookingType === newCabin.bookingType &&
-        cabin.bookingType === newCabin.appliances &&
-        cabin.status === newCabin.status
-    );
+  const handleAddRow = () => {
+    setCabins([...cabins, {
+      cabinName: '',
+      capacity: '',
+      bookingType: '',
+      appliances: '',
+      status: '',
+    }]);
+  };
 
-    if (!isRowExist) {
-      setCabins([...cabins, newCabin]);
-      setNewCabin({
-        cabinName: '',
-        capacity: '',
-        bookingType: '',
-        appliances:'',
-        status: 'Select Status',
-      });
-      setError('');
-    }
+  const validateCabins = () => {
+    const errors = cabins.map((cabin) => {
+      const rowErrors = {};
+      if (!cabin.cabinName) rowErrors.cabinName = true;
+      if (!cabin.capacity) rowErrors.capacity = true;
+      if (!cabin.bookingType) rowErrors.bookingType = true;
+      if (!cabin.appliances) rowErrors.appliances = true;
+      if (cabin.status === '') rowErrors.status = true;
+      return rowErrors;
+    });
+    setValidationErrors(errors);
+    return errors.every((row) => Object.keys(row).length === 0);
   };
 
   const handleRemoveRow = (index) => {
@@ -70,101 +70,114 @@ const AddCabin = () => {
 
   const handleDownload = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/cabin/download/format`, {
-            method: 'GET',
-        });
+      const response = await fetch(`${API_BASE_URL}/cabin/download/format`, {
+        method: 'GET',
+      });
 
-        if (!response.ok) {
-            throw new Error('Failed to download file');
-        }
+      if (!response.ok) {
+        throw new Error('Failed to download file');
+      }
 
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
 
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'Cabin Details.xlsx';
-        a.click();
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Cabin Details.xlsx';
+      a.click();
 
-        window.URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(url);
     } catch (error) {
-        console.error('Error downloading the file:', error);
+      console.error('Error downloading the file:', error);
     }
+  };
+
+// Initialize fuse.js with valid statuses and configuration
+const fuse = new Fuse(VALID_STATUSES, {
+  threshold: 0.3, // Adjust threshold for tolerance (lower means stricter match)
+  includeScore: true
+});
+
+const normalizeStatus = (status, bookingType) => {
+  const normalized = status?.toLowerCase().trim();
+
+  // If booking type is 'multiple_day', do not allow 'reserved' status
+  if (bookingType === 'multiple_day' && normalized === 'reserved') {
+    return { status: '', valid: false }; // Invalid status
+  }
+
+  // Perform fuzzy search using fuse.js
+  const result = fuse.search(normalized);
+
+  // If a match is found and the score is acceptable (lower score means closer match)
+  if (result.length > 0 && result[0].score < 0.3) {
+    return { status: result[0].item, valid: true }; 
+  } else {
+    return { status: '', valid: true };
+  }
+};
+
+const handleFileUpload = (event) => {
+  const uploadedFile = event.target.files[0];
+  if (!uploadedFile) return;
+
+  setFile(uploadedFile);
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+    const processedData = jsonData.map((row) => {
+      // Normalize Booking Validity to 'single_day' or 'multiple_day'
+      const bookingType =
+        row['Booking Validity']?.toLowerCase().includes('single')
+          ? 'single_day'
+          : row['Booking Validity']?.toLowerCase().includes('multiple')
+          ? 'multiple_day'
+          : '';
+
+      // Normalize Status using fuzzy matching
+      const { status, valid } = normalizeStatus(row['Status'], bookingType);
+
+    
+      return {
+        cabinName: row['Cabin Name'] || '',
+        capacity: row['Capacity'] || '',
+        appliances: row['Appliances'] || '',
+        bookingType,
+        status,
+      };
+    });
+
+    setCabins((prevCabins) => [...prevCabins, ...processedData]);
+  };
+
+  reader.readAsArrayBuffer(uploadedFile);
+  setFile(null);
+  if (fileInputRef.current) {
+    fileInputRef.current.value = null;
+  }
 };
 
 
-  const handleFileUpload = (event) => {
-    const uploadedFile = event.target.files[0];
-    if (!uploadedFile) return;
-  
-    setFile(uploadedFile);
-    const reader = new FileReader();
-  
-    reader.onload = (e) => {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: "array" });
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
-      const jsonData = XLSX.utils.sheet_to_json(sheet);
-  
-
-      const processedData = jsonData.map((row) => {
-        const bookingType =
-          row["Booking Validity"]?.toLowerCase().includes("single")
-            ? "single_day"
-            : row["Booking Validity"]?.toLowerCase().includes("multiple")
-            ? "multiple_day"
-            : "";
-  
-        const status =
-          bookingType === "multiple_day" &&
-          row["Status"]?.toLowerCase() === "reserved"
-            ? "Select Status"
-            : row["Status"];
-  
-        return {
-          cabinName: row["Cabin Name"] || "",
-          capacity: row["Capacity"] || "",
-          appliances: row["Appliances"] || "",
-          bookingType,
-          status,
-        };
-      });
-  
-      setCabins((prevCabins) => [...prevCabins, ...processedData]);
-    };
-  
-    reader.readAsArrayBuffer(uploadedFile);
-    setFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = null;
-    }
-  };
-  
-
-  // Handle Clear all data
   const handleClear = () => {
-    setFile(null); // Clear file
-    setCabins([]); // Clear cabin data
-    setError(""); // Clear errors
+    setFile(null);
+    setCabins([]);
+    setError("");
+    setValidationErrors([]);
     if (fileInputRef.current) {
       fileInputRef.current.value = null;
     }
   };
 
-  
   const handleSubmit = () => {
-    const validCabins = cabins.filter(
-      (cabin) =>
-        cabin.cabinName &&
-        cabin.capacity &&
-        cabin.bookingType &&
-        cabin.appliances &&
-        cabin.status !== 'Select Status'
-    );
 
-    if (validCabins.length === 0) {
-      setError('Please add at least one valid cabin.');
+    if (!validateCabins()) {
+      setError('Please correct the highlighted errors.');
       return;
     }
 
@@ -174,7 +187,7 @@ const AddCabin = () => {
     const payload = {
       token: token,
       user: userData,
-      cabin: validCabins, 
+      cabin: cabins,
     };
 
     axios
@@ -183,24 +196,24 @@ const AddCabin = () => {
         console.log('Cabins added successfully:', response);
         alert('Cabins added successfully!');
         setCabins([]);
+        setError("");
+        setValidationErrors([]);
       })
       .catch((error) => {
         console.error('Error adding cabins:', error);
         alert('Failed to add cabins. Please try again.');
-      });
+      }
+    );
   };
 
   return (
     <div className="container">
       <h2 className="my-4">Create Cabins</h2>
-    
-    
+
       <div className="d-flex justify-content-end mb-3">
-    
-      <button c className="btn btn-primary me-2" onClick={handleDownload}>
+        <button className="btn btn-primary me-2" onClick={handleDownload}>
           Download Format
         </button>
-
         <button
           className="btn btn-primary me-2"
           onClick={() => fileInputRef.current && fileInputRef.current.click()}
@@ -208,19 +221,17 @@ const AddCabin = () => {
         >
           Upload
         </button>
-       
-          <button className="btn btn-secondary me-2" onClick={handleClear}>
-            Clear
-          </button>
-        
+        <button className="btn btn-secondary me-2" onClick={handleClear}>
+          Clear
+        </button>
       </div>
 
       <input
         type="file"
         ref={fileInputRef}
-        style={{ display: 'none' }} 
+        style={{ display: 'none' }}
         onChange={handleFileUpload}
-        accept=".xlsx,.xls,.csv" // Restrict file types
+        accept=".xlsx,.xls,.csv"
       />
 
       {error && <div className="alert alert-danger">{error}</div>}
@@ -243,18 +254,20 @@ const AddCabin = () => {
                 <input
                   type="text"
                   name="cabinName"
+                  placeholder="Cabin Name"
                   value={cabin.cabinName}
                   onChange={(e) => handleInputChange(e, index)}
-                  className="form-control"
+                  className={`form-control ${validationErrors[index]?.cabinName ? 'is-invalid' : ''}`}
                 />
               </td>
               <td>
                 <input
                   type="number"
                   name="capacity"
+                   placeholder="Capacity"
                   value={cabin.capacity}
                   onChange={(e) => handleInputChange(e, index)}
-                  className="form-control"
+                  className={`form-control ${validationErrors[index]?.capacity ? 'is-invalid' : ''}`}
                 />
               </td>
               <td>
@@ -262,7 +275,7 @@ const AddCabin = () => {
                   name="bookingType"
                   value={cabin.bookingType}
                   onChange={(e) => handleInputChange(e, index)}
-                  className="form-control"
+                  className={`form-control ${validationErrors[index]?.bookingType ? 'is-invalid' : ''}`}
                 >
                   <option value="">Select Type</option>
                   <option value="single_day">Single Day</option>
@@ -273,9 +286,10 @@ const AddCabin = () => {
                 <input
                   type="text"
                   name="appliances"
+                  placeholder="Appliance"
                   value={cabin.appliances}
                   onChange={(e) => handleInputChange(e, index)}
-                  className="form-control"
+                  className={`form-control ${validationErrors[index]?.appliances ? 'is-invalid' : ''}`}
                 />
               </td>
               <td>
@@ -283,9 +297,9 @@ const AddCabin = () => {
                   name="status"
                   value={cabin.status}
                   onChange={(e) => handleInputChange(e, index)}
-                  className="form-control"
+                  className={`form-control ${validationErrors[index]?.status ? 'is-invalid' : ''}`}
                 >
-                  <option value="Select Status">Select Status</option>
+                  <option value="">Select Status</option>
                   <option value="Available">Available</option>
                   {cabin.bookingType === "single_day" && <option value="Reserved">Reserved</option>}
                 </select>
@@ -300,73 +314,18 @@ const AddCabin = () => {
               </td>
             </tr>
           ))}
-          <tr>
-            <td>
-              <input
-                type="text"
-                name="cabinName"
-                value={newCabin.cabinName}
-                onChange={(e) => handleInputChange(e)}
-                className="form-control"
-                placeholder="Cabin Name"
-                onBlur={handleAutoAddRow}
-              />
-            </td>
-            <td>
-              <input
-                type="number"
-                name="capacity"
-                value={newCabin.capacity}
-                onChange={(e) => handleInputChange(e)}
-                className="form-control"
-                placeholder="Capacity"
-                onBlur={handleAutoAddRow}
-              />
-            </td>
-            <td>
-              <select
-                name="bookingType"
-                value={newCabin.bookingType}
-                onChange={(e) => handleInputChange(e)}
-                className="form-control"
-                onBlur={handleAutoAddRow}
-              >
-                <option value="">Select Type</option>
-                <option value="single_day">Single Day</option>
-                <option value="multiple_day">Multiple Day</option>
-              </select>
-            </td>
-            <td>
-              <input
-                type="text"
-                name="appliances"
-                value={newCabin.appliances}
-                onChange={(e) => handleInputChange(e)}
-                className="form-control"
-                placeholder="Appliances"
-                onBlur={handleAutoAddRow}
-              />
-            </td>
-            <td>
-              <select
-                name="status"
-                value={newCabin.status}
-                onChange={(e) => handleInputChange(e)}
-                className="form-control"
-                onBlur={handleAutoAddRow}
-              >
-                <option value="Select Status">Select Status</option>
-                <option value="Available">Available</option>
-                {newCabin.bookingType === "single_day" && <option value="Reserved">Reserved</option>}
-              </select>
-            </td>
-          </tr>
         </tbody>
       </table>
 
-      <button className="btn btn-success mt-3" onClick={handleSubmit}>
-        Submit
-      </button>
+      <div className="d-flex justify-content-center py-3">
+  <button className="btn btn-success mx-2" onClick={handleAddRow}>
+    Add Row
+  </button>
+  <button className="btn btn-primary mx-2" onClick={handleSubmit}>
+    Submit
+  </button>
+</div>
+
     </div>
   );
 };

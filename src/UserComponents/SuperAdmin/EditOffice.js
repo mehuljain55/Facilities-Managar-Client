@@ -5,7 +5,6 @@ import API_BASE_URL from "../Config/Config";
 const EditCabin = () => {
   const [offices, setOffices] = useState([]);
 
-
   const fetchData = async () => {
     const user = JSON.parse(sessionStorage.getItem("user"));
     const token = sessionStorage.getItem("token");
@@ -28,9 +27,7 @@ const EditCabin = () => {
     }
   };
 
-
   useEffect(() => {
-  
     fetchData();
   }, []);
 
@@ -72,7 +69,7 @@ const EditCabin = () => {
     } catch (err) {
       alert("Error updating office");
       console.log(err);
-    }finally{
+    } finally {
       fetchData();
     }
   };
@@ -86,6 +83,7 @@ const EditCabin = () => {
             <th>Office ID</th>
             <th>Office Name</th>
             <th>Address</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
@@ -111,6 +109,18 @@ const EditCabin = () => {
                     handleInputChange(e, office.officeId, "address")
                   }
                 />
+              </td>
+              <td>
+                <select
+                  className="form-control"
+                  value={office.status}
+                  onChange={(e) =>
+                    handleInputChange(e, office.officeId, "status")
+                  }
+                >
+                  <option value="ACTIVE">Active</option>
+                  <option value="NOT_ACTIVE">Not Active</option>
+                </select>
               </td>
             </tr>
           ))}

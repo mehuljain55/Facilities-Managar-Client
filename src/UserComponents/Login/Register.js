@@ -31,7 +31,7 @@ const Register = () => {
   useEffect(() => {
     const fetchOfficeList = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/office/officeList`);
+        const response = await axios.get(`${API_BASE_URL}/office/activeOfficeList`);
         if (response.data.status === "success") {
           setOfficeList(response.data.payload);
           setFormData((prevData) => ({

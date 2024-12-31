@@ -88,13 +88,15 @@ const EditCabin = () => {
       );
       if (response.data.status === "success") {
         alert("Cabin deleted successfully!");
-        fetchData(); // Refresh the cabin list after deletion
+     
       } else {
         alert("Failed to delete cabin");
       }
     } catch (err) {
       alert("Error deleting cabin");
       console.log(err);
+    }finally{
+      fetchData(); 
     }
   };
   const handleSubmit = async () => {

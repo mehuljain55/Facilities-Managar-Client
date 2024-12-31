@@ -198,7 +198,7 @@ const AddCabin = () => {
       <div className="d-flex justify-content-end mb-3">
     
       <button c className="btn btn-primary me-2" onClick={handleDownload}>
-          Download
+          Download Format
         </button>
 
         <button

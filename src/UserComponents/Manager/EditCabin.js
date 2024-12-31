@@ -6,42 +6,42 @@ const EditCabin = () => {
   const [cabins, setCabins] = useState([]);
 
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const user = JSON.parse(sessionStorage.getItem("user"));
-      const token = sessionStorage.getItem("token");
+  const fetchData = async () => {
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const token = sessionStorage.getItem("token");
 
-      if (!user || !token) {
-        alert("User not authenticated");
-        return;
-      }
+    if (!user || !token) {
+      alert("User not authenticated");
+      return;
+    }
 
-      const userRequest = {
-        token: token,
-        user: user,
-      };
-
-      try {
-        const response = await axios.post(
-          `${API_BASE_URL}/manager/findAllCabinByOffice`,
-          userRequest,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.data.status === "success") {
-          setCabins(response.data.payload);
-          console.log(response.data.payload);
-        } else {
-          alert("Failed to fetch cabin list");
-        }
-      } catch (err) {
-        alert("Error fetching cabin list");
-      }
+    const userRequest = {
+      token: token,
+      user: user,
     };
 
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/manager/findAllCabinByOffice`,
+        userRequest,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.data.status === "success") {
+        setCabins(response.data.payload);
+        console.log(response.data.payload);
+      } else {
+        alert("Failed to fetch cabin list");
+      }
+    } catch (err) {
+      alert("Error fetching cabin list");
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -61,7 +61,42 @@ const EditCabin = () => {
     );
   };
 
+  const handleDelete = async (cabinId) => {
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const token = sessionStorage.getItem("token");
   
+    if (!user || !token) {
+      alert("User not authenticated");
+      return;
+    }
+  
+    const userRequest = {
+      token: token,
+      user: user,
+      cabinId: cabinId,
+    };
+  
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/cabin/deleteCabin`,
+        userRequest,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.data.status === "success") {
+        alert("Cabin deleted successfully!");
+        fetchData(); // Refresh the cabin list after deletion
+      } else {
+        alert("Failed to delete cabin");
+      }
+    } catch (err) {
+      alert("Error deleting cabin");
+      console.log(err);
+    }
+  };
   const handleSubmit = async () => {
     const user = JSON.parse(sessionStorage.getItem("user"));
     const token = sessionStorage.getItem("token");
@@ -112,6 +147,7 @@ const EditCabin = () => {
             <th>Appliances</th>
          
             <th>Status</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -174,7 +210,14 @@ const EditCabin = () => {
                   <option value="Reserved">Reserved</option>
                 </select>
               </td>
-            </tr>
+              <td>
+  <button
+    className="btn btn-danger"
+    onClick={() => handleDelete(cabin.cabinId)} // Wrapped in an arrow function
+  >
+    Delete
+  </button>
+</td>            </tr>
           ))}
         </tbody>
       </table>

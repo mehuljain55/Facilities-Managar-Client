@@ -152,6 +152,7 @@ const AddCabin = () => {
     }
   };
 
+  
   const handleSubmit = () => {
     const validCabins = cabins.filter(
       (cabin) =>

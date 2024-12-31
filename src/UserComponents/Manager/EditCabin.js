@@ -6,42 +6,43 @@ const EditCabin = () => {
   const [cabins, setCabins] = useState([]);
 
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const user = JSON.parse(sessionStorage.getItem("user"));
-      const token = sessionStorage.getItem("token");
+  const fetchData = async () => {
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const token = sessionStorage.getItem("token");
 
-      if (!user || !token) {
-        alert("User not authenticated");
-        return;
-      }
+    if (!user || !token) {
+      alert("User not authenticated");
+      return;
+    }
 
-      const userRequest = {
-        token: token,
-        user: user,
-      };
-
-      try {
-        const response = await axios.post(
-          `${API_BASE_URL}/manager/findAllCabinByOffice`,
-          userRequest,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.data.status === "success") {
-          setCabins(response.data.payload);
-          console.log(response.data.payload);
-        } else {
-          alert("Failed to fetch cabin list");
-        }
-      } catch (err) {
-        alert("Error fetching cabin list");
-      }
+    const userRequest = {
+      token: token,
+      user: user,
     };
 
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/manager/findAllCabinByOffice`,
+        userRequest,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.data.status === "success") {
+        setCabins(response.data.payload);
+        console.log(response.data.payload);
+      } else {
+        alert("Failed to fetch cabin list");
+      }
+    } catch (err) {
+      alert("Error fetching cabin list");
+    }
+  };
+
+
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -109,6 +110,8 @@ const EditCabin = () => {
             <th>Cabin Name</th>
             <th>Capacity</th>
             <th>Booking Type</th>
+            <th>Appliances</th>
+         
             <th>Status</th>
           </tr>
         </thead>
@@ -149,6 +152,17 @@ const EditCabin = () => {
                 </select>
               </td>
               <td>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={cabin.appliances}
+                  onChange={(e) =>
+                    handleInputChange(e, cabin.cabinId, "appliances")
+                  }
+                />
+              </td>
+              <td>
+                
                 <select
                   className="form-control"
                   value={cabin.status}

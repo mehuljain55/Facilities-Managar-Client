@@ -11,17 +11,13 @@ const CabinApproveRequest = ({ filterStatus }) => {
   const [availableCabins, setAvailableCabins] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [selectedCabin, setSelectedCabin] = useState(null);
-  const [selectedCabinName, setSelectedCabinName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [filterType, setFilterType] = useState(filterStatus || "all");
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
   const userData = JSON.parse(sessionStorage.getItem('user'));
 
   
-
   const fetchBookingRequests = async (startDate, endDate) => {
     setLoading(true);
     setError(null);
@@ -72,7 +68,6 @@ const CabinApproveRequest = ({ filterStatus }) => {
     try {
       const body = { token, user };
      
-
       const response = await axios.post(`${API_BASE_URL}/admin/booking/viewRequest`, body);
 
       if (response.data.status === 'success') {
@@ -228,8 +223,6 @@ const CabinApproveRequest = ({ filterStatus }) => {
     }).format(date);
   };
 
-
-
   const filterButtonStyle = (type) => ({
     backgroundColor: filterType === type ? 'darkblue' : 'lightblue',
     color: filterType === type ? 'white' : 'white',
@@ -336,7 +329,6 @@ const CabinApproveRequest = ({ filterStatus }) => {
               <th>End Date</th>
               <th>Start Time</th>
               <th>End Time</th>
-              
               <th>Status</th>
               {userData.role !== 'super_admin' && ( 
                      <th>Action</th>

@@ -17,6 +17,7 @@ const CabinRequest = () => {
   const [loading, setLoading] = useState(false);
   const [duration, setDuration] = useState("");
   const[validTime,setValidTime]= useState(false);
+  const[selectedCabinData,setSelectedCabinData]=useState("");
  
 
   const getUserData = () => {
@@ -26,6 +27,7 @@ const CabinRequest = () => {
 
    const fetchCabins = async () => {
     setSelectedCabin("");
+    setSelectedCabinData(""); 
     setCabins([]);
   
     if(!validTime &&  bookingValidity === "single_day")
@@ -84,6 +86,26 @@ const CabinRequest = () => {
     fetchCabins();
   }, [startDate, endDate, validFrom, validTime,validTill, purpose, officeId, bookingValidity]);
 
+  const handleCabinChange = (e) => {
+    const selectedCabinId = e.target.value;
+    setSelectedCabin(selectedCabinId);
+
+    // Log selectedCabinId and cabins for debugging
+    console.log("Selected Cabin ID: ", selectedCabinId);
+    console.log("Cabins Array: ", cabins);
+
+    // Find the selected cabin object
+    const selectedCabinObj = cabins.find((cabin) => String(cabin.cabinId) === selectedCabinId); // Ensure both are strings
+    console.log("Selected Cabin Object: ", selectedCabinObj);
+
+    if (selectedCabinObj) {
+      setSelectedCabinData(selectedCabinObj.appliances || "");
+    } else {
+      setSelectedCabinData(""); // Reset if no valid selection
+    }
+  };
+
+
   const handleCreateBooking = async () => {
     const userData = getUserData();
     const token = sessionStorage.getItem("token");
@@ -121,7 +143,7 @@ const CabinRequest = () => {
     };
 
     console.log("User")
-    console.log(requestData);
+    console.log(selectedCabinData);
 
     try {
       const response = await axios.post(`${API_BASE_URL}/user/createBooking`, requestData);
@@ -130,6 +152,7 @@ const CabinRequest = () => {
         setSelectedCabin("");
         setCabins([]);    
         setPurpose("");
+        setSelectedCabinData(""); 
       } else {
         alert("Failed to create booking: " + response.data.message);
       }
@@ -166,21 +189,6 @@ const CabinRequest = () => {
   }, [validFrom, validTill]);
 
 
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Booked":
-        return "text-danger"; // Red color for Booked
-      case "Requested":
-        return "text-warning"; // Yellow for requested
-      case "Avaliable":
-        return "text-success"; // Green for available
-      default:
-        return "";
-    }
-  };
-
-
   return (
     <div className="container mt-5">
       <h3 className="text-center mb-4">Cabin Booking</h3>
@@ -197,7 +205,7 @@ const CabinRequest = () => {
               <option value="multiple_day">Multiple Day</option>
             </select>
           </div>
-
+  
           <div className="mb-3">
             <label className="form-label">Start Date</label>
             <input
@@ -207,7 +215,7 @@ const CabinRequest = () => {
               onChange={(e) => setStartDate(e.target.value)}
             />
           </div>
-
+  
           {bookingValidity === "multiple_day" && (
             <div className="mb-3">
               <label className="form-label">End Date</label>
@@ -219,49 +227,47 @@ const CabinRequest = () => {
               />
             </div>
           )}
-
-{bookingValidity === "single_day" && (
-  <>
-    <div className="mb-3">
-      <label className="form-label">Start Time</label>
-      <CustomTimePicker
-        value={validFrom}
-        onChange={(time) => {
-          setValidFrom(time);
-        }}
-      />
-    </div>
-    <div className="mb-3">
-      <label className="form-label">End Time</label>
-      <CustomTimePicker
-        value={validTill}
-        onChange={(time) => {
-          if (validFrom && time > validFrom) {
-            setValidTill(time);
-          } else {
-            alert("End time must be greater than start time.");
-            setValidTill(time);
-          }
-        }}
-       
-      />
-    </div>
-    {validFrom && validTill && validTill <= validFrom && (
-      <p className="text-danger">End time must be later than start time.</p>
-    )}
-    <div className="mb-3">
-      <label className="form-label">Duration</label>
-      <input
-        type="text"
-        className="form-control"
-        value={duration}
-        placeholder="Enter booking purpose"
-      />
-    </div>
-  </>
-)}
-
-
+  
+          {bookingValidity === "single_day" && (
+            <>
+              <div className="mb-3">
+                <label className="form-label">Start Time</label>
+                <CustomTimePicker
+                  value={validFrom}
+                  onChange={(time) => {
+                    setValidFrom(time);
+                  }}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">End Time</label>
+                <CustomTimePicker
+                  value={validTill}
+                  onChange={(time) => {
+                    if (validFrom && time > validFrom) {
+                      setValidTill(time);
+                    } else {
+                      alert("End time must be greater than start time.");
+                      setValidTill(time);
+                    }
+                  }}
+                />
+              </div>
+              {validFrom && validTill && validTill <= validFrom && (
+                <p className="text-danger">End time must be later than start time.</p>
+              )}
+              <div className="mb-3">
+                <label className="form-label">Duration</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={duration}
+                  placeholder="Enter booking purpose"
+                />
+              </div>
+            </>
+          )}
+  
           <div className="mb-3">
             <label className="form-label">Purpose</label>
             <input
@@ -272,7 +278,7 @@ const CabinRequest = () => {
               placeholder="Enter booking purpose"
             />
           </div>
-
+  
           <div className="mb-3">
             <label className="form-label">Office ID</label>
             <select
@@ -285,39 +291,51 @@ const CabinRequest = () => {
               <option value="BTC">BTC</option>
             </select>
           </div>
-
+  
           <div className="mb-3">
-            <label className="form-label">Select Cabin</label>
-            {loading ? (
-              <p>Loading cabins...</p>
-            ) : (
-              <select
-                className="form-select"
-                value={selectedCabin}
-                onChange={(e) => setSelectedCabin(e.target.value)}
-                disabled={cabins.length === 0}
-              >
-                <option value="">Select a Cabin</option>
-                {cabins.map((cabin) => (
-                  <option
-                    key={cabin.cabinId}
-                    value={cabin.cabinId}
-                    disabled={cabin.status === "Booked" || cabin.status === "Reserved"}
+  <label className="form-label">Select Cabin</label>
+  {loading ? (
+    <p>Loading cabins...</p>
+  ) : (
+    <select
+      className="form-select"
+      value={selectedCabin}
+      onChange={handleCabinChange}
+      disabled={cabins.length === 0}
+    >
+      <option value="">Select a Cabin</option>
+      {cabins
+        .filter(cabin => cabin.status !== "Reserved") // Filter out "Reserved" cabins
+        .map((cabin) => (
+          <option
+            key={cabin.cabinId}
+            value={cabin.cabinId}
+            disabled={cabin.status === "Booked"}
+          >
+            {cabin.cabinName} - Capacity: {cabin.capacity} - Status: {cabin.status}
+          </option>
+        ))}
+    </select>
+  )}
+</div>
 
-                  >
-                    {cabin.cabinName} - Capacity: {cabin.capacity} 
-                    <span className={getStatusColor(cabin.status)}>
-                      {" - Status: " + cabin.msg}
-                    </span>
-                  </option>
-                ))}
-              </select>
-            )}
+  
+          <div className="mt-3">
+            <label htmlFor="appliances" className="form-label">Appliances</label>
+            <input
+              type="text"
+              id="appliances"
+              className="form-control"
+              placeholder="Select the cabin"
+              value={selectedCabinData}
+              disabled={true}
+              
+            />
           </div>
-
+  
           <button
             type="button"
-            className="btn btn-success w-100"
+            className="btn btn-success w-100 mt-4" // Added margin-top to space out from previous field
             onClick={handleCreateBooking}
             disabled={!selectedCabin}
           >
@@ -327,6 +345,5 @@ const CabinRequest = () => {
       </div>
     </div>
   );
-};
-
+}  
 export default CabinRequest;

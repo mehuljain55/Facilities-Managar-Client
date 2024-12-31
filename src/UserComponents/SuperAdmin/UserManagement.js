@@ -39,7 +39,7 @@ const UserManagement = () => {
 
       if (response.data.status === "success") {
         setUserList(response.data.payload);
-        setOriginalUserList(response.data.payload); // Keep track of the original data for comparison
+        setOriginalUserList(response.data.payload); 
       } else {
         setError("No user found");
       }

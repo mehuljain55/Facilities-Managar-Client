@@ -15,6 +15,7 @@ import UserDashboard from "../User/UserDashboard";
 import SuperAdminDashboard from "../SuperAdmin/SuperAdminDashboard";
 import CustomCabinReservation from "../Manager/CustomCabinReservation";
 import "bootstrap/dist/css/bootstrap.min.css";
+import OfficeManager from "../SuperAdmin/OfficeManager";
 
 const MainComponent = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -120,12 +121,19 @@ const MainComponent = () => {
               </div>
               );
 
-              case "userManagement":
-                return (
-                 <div>
-                 <UserManagement />
-                   </div>
-                   );
+        case "userManagement":
+          return (
+          <div>
+          <UserManagement />
+         </div>
+                 );
+
+                 case "officeManagement":
+                  return (
+                  <div>
+                  <OfficeManager />
+                 </div>
+                         );
     
             
       default:
@@ -373,7 +381,18 @@ const MainComponent = () => {
                   </button>
                 </li>
 
-
+                <li>
+                  <button
+                    className={`btn btn-link text-decoration-none w-100 text-start ${
+                      activeSection === "officeManagement"
+                        ? "fw-bold text-primary"
+                        : "text-dark"
+                    }`}
+                    onClick={() => setActiveSection("officeManagement")}
+                  >
+                   Office Manager
+                  </button>
+                </li>
                
               </ul>
             </>
